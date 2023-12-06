@@ -229,3 +229,29 @@ h1 {
     margin: 1rem;
   }
 }
+
+nav {
+  background-color: #333;
+  color: white;
+}
+
+ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  display: flex; /* Make the list items display in a row */
+}
+
+li {
+  margin: 0;
+  padding: 10px 20px;
+}
+
+li a {
+  color: white;
+  text-decoration: none;
+}
+
+li a:hover {
+  text-decoration: underline;
+}
