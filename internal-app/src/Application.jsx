@@ -25,7 +25,14 @@ function SearchComponent({ submissions }) {
             ...prevFilters,
             [name]: type === 'checkbox' ? checked : value
         }));
-        setErrorMessage(''); // Clear error message on any input change
+        // Clear error message on any input change
+        setErrorMessage('');
+    };
+
+    const handleFocus = () => {
+        // Clear the displayed search results and error message when focusing on any input
+        setFilteredSubmissions([]);
+        setErrorMessage('');
     };
 
     const handleSearch = () => {
@@ -83,16 +90,16 @@ function SearchComponent({ submissions }) {
         <div>
             <h3>Advanced Search</h3>
             <div>
-                <input type="text" name="dataSourceCode" value={filters.dataSourceCode} onChange={handleInputChange} placeholder="Data Source Code" />
-                <input type="text" name="processTrackId" value={filters.processTrackId} onChange={handleInputChange} placeholder="Process Track ID" />
-                <input type="text" name="description" value={filters.description} onChange={handleInputChange} placeholder="Description" />
-                <input type="text" name="comment" value={filters.comment} onChange={handleInputChange} placeholder="Comment" />
-                <input type="checkbox" name="noData" checked={filters.noData} onChange={handleInputChange} /> No Data
-                <input type="checkbox" name="forceComplete" checked={filters.forceComplete} onChange={handleInputChange} /> Force Complete
-                <input type="checkbox" name="reprocess" checked={filters.reprocess} onChange={handleInputChange} /> Reprocess
-                <input type="checkbox" name="attestation" checked={filters.attestation} onChange={handleInputChange} /> Attestation
-                <input type="date" name="startDate" value={filters.startDate} onChange={handleInputChange} placeholder="Start Date" />
-                <input type="date" name="endDate" value={filters.endDate} onChange={handleInputChange} placeholder="End Date" />
+                <input type="text" name="dataSourceCode" value={filters.dataSourceCode} onChange={handleInputChange} onFocus={handleFocus} placeholder="Data Source Code" />
+                <input type="text" name="processTrackId" value={filters.processTrackId} onChange={handleInputChange} onFocus={handleFocus} placeholder="Process Track ID" />
+                <input type="text" name="description" value={filters.description} onChange={handleInputChange} onFocus={handleFocus} placeholder="Description" />
+                <input type="text" name="comment" value={filters.comment} onChange={handleInputChange} onFocus={handleFocus} placeholder="Comment" />
+                <input type="checkbox" name="noData" checked={filters.noData} onChange={handleInputChange} onFocus={handleFocus} /> No Data
+                <input type="checkbox" name="forceComplete" checked={filters.forceComplete} onChange={handleInputChange} onFocus={handleFocus} /> Force Complete
+                <input type="checkbox" name="reprocess" checked={filters.reprocess} onChange={handleInputChange} onFocus={handleFocus} /> Reprocess
+                <input type="checkbox" name="attestation" checked={filters.attestation} onChange={handleInputChange} onFocus={handleFocus} /> Attestation
+                <input type="date" name="startDate" value={filters.startDate} onChange={handleInputChange} onFocus={handleFocus} placeholder="Start Date" />
+                <input type="date" name="endDate" value={filters.endDate} onChange={handleInputChange} onFocus={handleFocus} placeholder="End Date" />
                 <button onClick={handleSearch}>Search</button>
                 {errorMessage && <div style={{ color: 'red', marginTop: '10px' }}>{errorMessage}</div>}
             </div>
