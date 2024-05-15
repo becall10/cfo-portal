@@ -40,98 +40,49 @@ function SearchComponent({ submissions }) {
         <div>
             <h3>Advanced Search</h3>
             <div>
-                <label>
-                    Data Source Code:
-                    <input
-                        type="text"
-                        name="dataSourceCode"
-                        value={filters.dataSourceCode}
-                        onChange={handleInputChange}
-                    />
-                </label>
-                <label>
-                    Process Track ID:
-                    <input
-                        type="text"
-                        name="processTrackId"
-                        value={filters.processTrackId}
-                        onChange={handleInputChange}
-                    />
-                </label>
-                <label>
-                    Description:
-                    <input
-                        type="text"
-                        name="description"
-                        value={filters.description}
-                        onChange={handleInputChange}
-                    />
-                </label>
-                <label>
-                    Batch Date:
-                    <input
-                        type="date"
-                        name="batchDate"
-                        value={filters.batchDate}
-                        onChange={handleInputChange}
-                    />
-                </label>
-                <label>
-                    Comment:
-                    <input
-                        type="text"
-                        name="comment"
-                        value={filters.comment}
-                        onChange={handleInputChange}
-                    />
-                </label>
-                <label>
-                    No Data:
-                    <input
-                        type="checkbox"
-                        name="noData"
-                        checked={filters.noData}
-                        onChange={handleInputChange}
-                    />
-                </label>
-                <label>
-                    Force Complete:
-                    <input
-                        type="checkbox"
-                        name="forceComplete"
-                        checked={filters.forceComplete}
-                        onChange={handleInputChange}
-                    />
-                </label>
-                <label>
-                    Reprocess:
-                    <input
-                        type="checkbox"
-                        name="reprocess"
-                        checked={filters.reprocess}
-                        onChange={handleInputChange}
-                    />
-                </label>
-                <label>
-                    Attestation:
-                    <input
-                        type="checkbox"
-                        name="attestation"
-                        checked={filters.attestation}
-                        onChange={handleInputChange}
-                    />
-                </label>
+                <input type="text" name="dataSourceCode" value={filters.dataSourceCode} onChange={handleInputChange} placeholder="Data Source Code" />
+                <input type="text" name="processTrackId" value={filters.processTrackId} onChange={handleInputChange} placeholder="Process Track ID" />
+                <input type="text" name="description" value={filters.description} onChange={handleInputChange} placeholder="Description" />
+                <input type="date" name="batchDate" value={filters.batchDate} onChange={handleInputChange} />
+                <input type="text" name="comment" value={filters.comment} onChange={handleInputChange} placeholder="Comment" />
+                <input type="checkbox" name="noData" checked={filters.noData} onChange={handleInputChange} /> No Data
+                <input type="checkbox" name="forceComplete" checked={filters.forceComplete} onChange={handleInputChange} /> Force Complete
+                <input type="checkbox" name="reprocess" checked={filters.reprocess} onChange={handleInputChange} /> Reprocess
+                <input type="checkbox" name="attestation" checked={filters.attestation} onChange={handleInputChange} /> Attestation
+                <button onClick={handleSearch}>Search</button>
             </div>
-            <button onClick={handleSearch}>Search</button>
-            <ul>
-                {filteredSubmissions.map(sub => (
-                    <li key={sub.id}>
-                        {sub.dataSourceCode}, {sub.processTrackId}, {sub.description}, {sub.batchDate}, {sub.comment}, 
-                        {sub.noData ? 'No Data' : ''}, {sub.forceComplete ? 'Force Complete' : ''}, 
-                        {sub.reprocess ? 'Reprocess' : ''}, {sub.attestation ? 'Attestation' : ''}
-                    </li>
-                ))}
-            </ul>
+            {filteredSubmissions.length > 0 && (
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Data Source Code</th>
+                            <th>Process Track ID</th>
+                            <th>Description</th>
+                            <th>Batch Date</th>
+                            <th>Comment</th>
+                            <th>No Data</th>
+                            <th>Force Complete</th>
+                            <th>Reprocess</th>
+                            <th>Attestation</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {filteredSubmissions.map((sub, index) => (
+                            <tr key={index}>
+                                <td>{sub.dataSourceCode}</td>
+                                <td>{sub.processTrackId}</td>
+                                <td>{sub.description}</td>
+                                <td>{sub.batchDate}</td>
+                                <td>{sub.comment}</td>
+                                <td>{sub.noData ? 'Yes' : 'No'}</td>
+                                <td>{sub.forceComplete ? 'Yes' : 'No'}</td>
+                                <td>{sub.reprocess ? 'Yes' : 'No'}</td>
+                                <td>{sub.attestation ? 'Yes' : 'No'}</td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            )}
         </div>
     );
 }
