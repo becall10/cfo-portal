@@ -1,3 +1,27 @@
+/* SearchComponent.css */
+
+table {
+    width: 100%; /* Full-width table */
+    border-collapse: collapse; /* Collapses the border */
+    margin-top: 20px; /* Space above the table */
+}
+
+th, td {
+    border: 1px solid #ccc; /* Grey border for readability */
+    padding: 8px; /* Padding inside cells */
+    text-align: left; /* Align text to the left */
+}
+
+thead {
+    background-color: #f2f2f2; /* Light grey background for the header */
+}
+
+tr:nth-child(even) {
+    background-color: #f9f9f9; /* Zebra striping for rows */
+}
+
+
+**************
 // SearchComponent.jsx
 
 import React, { useState } from 'react';
@@ -88,3 +112,4 @@ function SearchComponent({ submissions }) {
 }
 
 export default SearchComponent;
+
