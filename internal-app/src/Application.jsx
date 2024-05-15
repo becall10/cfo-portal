@@ -1,7 +1,7 @@
 // SearchComponent.jsx
 
 import React, { useState } from 'react';
-import './SearchComponent.css'; // Ensure the CSS is linked for styling
+import './app.css'; // Ensure the CSS is linked for styling
 
 function SearchComponent({ submissions }) {
     const [filters, setFilters] = useState({
@@ -17,6 +17,7 @@ function SearchComponent({ submissions }) {
     });
 
     const [filteredSubmissions, setFilteredSubmissions] = useState([]);
+    const [searchPerformed, setSearchPerformed] = useState(false); // Track if a search has been performed
 
     const handleInputChange = (event) => {
         const { name, value, type, checked } = event.target;
@@ -36,6 +37,7 @@ function SearchComponent({ submissions }) {
             });
         });
         setFilteredSubmissions(results);
+        setSearchPerformed(true); // Update state to indicate that a search has been performed
     };
 
     return (
@@ -45,7 +47,11 @@ function SearchComponent({ submissions }) {
                 {/* Input fields and labels as previously defined */}
             </div>
             <button onClick={handleSearch}>Search</button>
-            {filteredSubmissions.length > 0 ? (
+            {searchPerformed && filteredSubmissions.length === 0 ? (
+                <div className="search-feedback">
+                    There are no results matching your criteria. Please adjust your search and try again.
+                </div>
+            ) : (
                 <table>
                     <thead>
                         <tr>
@@ -76,10 +82,6 @@ function SearchComponent({ submissions }) {
                         ))}
                     </tbody>
                 </table>
-            ) : (
-                <div className="search-feedback">
-                    There are no results matching your criteria. Please adjust your search and try again.
-                </div>
             )}
         </div>
     );
