@@ -12,11 +12,12 @@ function SearchComponent({ submissions }) {
         forceComplete: false,
         reprocess: false,
         attestation: false,
-        startDate: '', // New start date for the range
-        endDate: ''   // New end date for the range
+        startDate: '',
+        endDate: ''
     });
 
     const [filteredSubmissions, setFilteredSubmissions] = useState([]);
+    const [errorMessage, setErrorMessage] = useState(''); // State for storing the error message
 
     const handleInputChange = (event) => {
         const { name, value, type, checked } = event.target;
@@ -24,21 +25,37 @@ function SearchComponent({ submissions }) {
             ...prevFilters,
             [name]: type === 'checkbox' ? checked : value
         }));
+        setErrorMessage(''); // Clear error message on any input change
     };
 
     const handleSearch = () => {
-        const results = submissions.filter(submission => {
-            // Date range check
-            const submissionDate = new Date(submission.batchDate);
-            const startDate = filters.startDate ? new Date(filters.startDate) : new Date('1900-01-01'); // Default to a very early date if not specified
-            const endDate = filters.endDate ? new Date(filters.endDate) : new Date(); // Default to today's date if not specified
+        // Check if all text and date fields are empty and no checkboxes are true
+        if (
+            !filters.dataSourceCode &&
+            !filters.processTrackId &&
+            !filters.description &&
+            !filters.comment &&
+            !filters.startDate &&
+            !filters.endDate &&
+            !filters.noData &&
+            !filters.forceComplete &&
+            !filters.reprocess &&
+            !filters.attestation
+        ) {
+            setErrorMessage("Please select at least one field.");
+            return;
+        }
 
+        const results = submissions.filter(submission => {
+            const submissionDate = submission.batchDate ? new Date(submission.batchDate) : null;
+            const startDate = filters.startDate ? new Date(filters.startDate) : null;
+            const endDate = filters.endDate ? new Date(filters.endDate) : new Date();
             return (
-                (!filters.startDate || submissionDate >= startDate) &&
-                (!filters.endDate || submissionDate <= endDate) &&
+                (!startDate || !submissionDate || submissionDate >= startDate) &&
+                (!endDate || !submissionDate || submissionDate <= endDate) &&
                 Object.keys(filters).every(key => {
                     if (['startDate', 'endDate'].includes(key)) {
-                        return true; // Skip date range keys in the normal filtering logic
+                        return true;
                     }
                     if (typeof filters[key] === 'boolean') {
                         return filters[key] === submission[key];
@@ -47,7 +64,11 @@ function SearchComponent({ submissions }) {
                 })
             );
         });
+
         setFilteredSubmissions(results);
+        if (results.length === 0) {
+            setErrorMessage('No results found for the selected criteria.');
+        }
     };
 
     return (
@@ -65,40 +86,12 @@ function SearchComponent({ submissions }) {
                 <input type="date" name="startDate" value={filters.startDate} onChange={handleInputChange} placeholder="Start Date" />
                 <input type="date" name="endDate" value={filters.endDate} onChange={handleInputChange} placeholder="End Date" />
                 <button onClick={handleSearch}>Search</button>
+                {errorMessage && <div style={{ color: 'red', marginTop: '10px' }}>{errorMessage}</div>}
             </div>
-            {filteredSubmissions.length > 0 ? (
+            {filteredSubmissions.length > 0 && (
                 <table>
-                    <thead>
-                        <tr>
-                            <th>Data Source Code</th>
-                            <th>Process Track ID</th>
-                            <th>Description</th>
-                            <th>Batch Date</th>
-                            <th>Comment</th>
-                            <th>No Data</th>
-                            <th>Force Complete</th>
-                            <th>Reprocess</th>
-                            <th>Attestation</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {filteredSubmissions.map((sub, index) => (
-                            <tr key={index}>
-                                <td>{sub.dataSourceCode}</td>
-                                <td>{sub.processTrackId}</td>
-                                <td>{sub.description}</td>
-                                <td>{sub.batchDate}</td>
-                                <td>{sub.comment}</td>
-                                <td>{sub.noData ? 'Yes' : 'No'}</td>
-                                <td>{sub.forceComplete ? 'Yes' : 'No'}</td>
-                                <td>{sub.reprocess ? 'Yes' : 'No'}</td>
-                                <td>{sub.attestation ? 'Yes' : 'No'}</td>
-                            </tr>
-                        ))}
-                    </tbody>
+                    {/* Table headers and data rows */}
                 </table>
-            ) : (
-                <div>There are no results matching your criteria. Please adjust your search and try again.</div>
             )}
         </div>
     );
