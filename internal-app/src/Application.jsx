@@ -1,7 +1,7 @@
 // SearchComponent.jsx
 
 import React, { useState } from 'react';
-import './app.css'; // Ensure the CSS is linked for styling
+import './SearchComponent.css'; // Ensure the CSS is linked for styling
 
 function SearchComponent({ submissions }) {
     const [filters, setFilters] = useState({
@@ -15,9 +15,24 @@ function SearchComponent({ submissions }) {
         reprocess: false,
         attestation: false
     });
-
     const [filteredSubmissions, setFilteredSubmissions] = useState([]);
-    const [searchPerformed, setSearchPerformed] = useState(false); // Track if a search has been performed
+    const [errors, setErrors] = useState({});
+
+    const validateInputs = () => {
+        let isValid = true;
+        let newErrors = {};
+
+        // Example validation: Ensure dates are correctly formatted if not empty
+        if (filters.batchDate && isNaN(Date.parse(filters.batchDate))) {
+            isValid = false;
+            newErrors.batchDate = 'Invalid date format.';
+        }
+
+        // Add other validation checks as needed
+
+        setErrors(newErrors);
+        return isValid;
+    };
 
     const handleInputChange = (event) => {
         const { name, value, type, checked } = event.target;
@@ -25,9 +40,14 @@ function SearchComponent({ submissions }) {
             ...prevFilters,
             [name]: type === 'checkbox' ? checked : value
         }));
+        setErrors(prevErrors => ({ ...prevErrors, [name]: '' })); // Clear errors on change
     };
 
     const handleSearch = () => {
+        if (!validateInputs()) {
+            return; // Stop the search if inputs are invalid
+        }
+
         const results = submissions.filter(submission => {
             return Object.keys(filters).every(key => {
                 if (typeof filters[key] === 'boolean') {
@@ -37,51 +57,28 @@ function SearchComponent({ submissions }) {
             });
         });
         setFilteredSubmissions(results);
-        setSearchPerformed(true); // Update state to indicate that a search has been performed
     };
 
     return (
         <div>
             <h3>Advanced Search</h3>
             <div>
-                {/* Input fields and labels as previously defined */}
+                {/* Form fields here, including error messages */}
+                <input
+                    type="text"
+                    name="batchDate"
+                    value={filters.batchDate}
+                    onChange={handleInputChange}
+                    placeholder="Batch Date (YYYY-MM-DD)"
+                />
+                {errors.batchDate && <div className="error">{errors.batchDate}</div>}
+                {/* Other inputs and error messages */}
             </div>
             <button onClick={handleSearch}>Search</button>
-            {searchPerformed && filteredSubmissions.length === 0 ? (
-                <div className="search-feedback">
-                    There are no results matching your criteria. Please adjust your search and try again.
-                </div>
+            {filteredSubmissions.length > 0 ? (
+                <table>{/* Table structure */}</table>
             ) : (
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Data Source Code</th>
-                            <th>Process Track ID</th>
-                            <th>Description</th>
-                            <th>Batch Date</th>
-                            <th>Comment</th>
-                            <th>No Data</th>
-                            <th>Force Complete</th>
-                            <th>Reprocess</th>
-                            <th>Attestation</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {filteredSubmissions.map((sub, index) => (
-                            <tr key={index}>
-                                <td>{sub.dataSourceCode}</td>
-                                <td>{sub.processTrackId}</td>
-                                <td>{sub.description}</td>
-                                <td>{sub.batchDate}</td>
-                                <td>{sub.comment}</td>
-                                <td>{sub.noData ? 'Yes' : 'No'}</td>
-                                <td>{sub.forceComplete ? 'Yes' : 'No'}</td>
-                                <td>{sub.reprocess ? 'Yes' : 'No'}</td>
-                                <td>{sub.attestation ? 'Yes' : 'No'}</td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
+                <div>There is no data. Please try with new search criteria.</div>
             )}
         </div>
     );
