@@ -1,24 +1,9 @@
-// Attest.jsx
+// SearchComponent.jsx
+
 import React, { useState } from 'react';
 
-function Attest() {
-    const [dataSourceCode, setDataSourceCode] = useState('');
-    const [comment, setComment] = useState('');
-    const [submissions, setSubmissions] = useState([]);
+function SearchComponent({ submissions, setFilteredSubmissions }) {
     const [filter, setFilter] = useState('');
-    const [filteredSubmissions, setFilteredSubmissions] = useState([]);
-
-    const handleSubmit = (event) => {
-        event.preventDefault();
-        const newSubmission = {
-            dataSourceCode,
-            comment,
-            id: submissions.length + 1  // Simple ID based on array length
-        };
-        setSubmissions([...submissions, newSubmission]);
-        setDataSourceCode('');
-        setComment('');
-    };
 
     const handleSearch = (event) => {
         const searchQuery = event.target.value;
@@ -31,6 +16,44 @@ function Attest() {
         } else {
             setFilteredSubmissions([]);
         }
+    };
+
+    return (
+        <div>
+            <input
+                type="text"
+                value={filter}
+                onChange={handleSearch}
+                placeholder="Filter by Data Source Code"
+            />
+        </div>
+    );
+}
+
+export default SearchComponent;
+**********
+
+// Attest.jsx
+
+import React, { useState } from 'react';
+import SearchComponent from './SearchComponent';  // Import the SearchComponent
+
+function Attest() {
+    const [dataSourceCode, setDataSourceCode] = useState('');
+    const [comment, setComment] = useState('');
+    const [submissions, setSubmissions] = useState([]);
+    const [filteredSubmissions, setFilteredSubmissions] = useState([]);
+
+    const handleSubmit = (event) => {
+        event.preventDefault();
+        const newSubmission = {
+            dataSourceCode,
+            comment,
+            id: submissions.length + 1  // Simple ID based on array length
+        };
+        setSubmissions([...submissions, newSubmission]);
+        setDataSourceCode('');
+        setComment('');
     };
 
     return (
@@ -56,20 +79,13 @@ function Attest() {
                 </div>
                 <button type="submit">Submit</button>
             </form>
-            <div>
-                <h3>Search Submissions by Data Source Code:</h3>
-                <input
-                    type="text"
-                    value={filter}
-                    onChange={handleSearch}
-                    placeholder="Filter by Data Source Code"
-                />
-                <ul>
-                    {filteredSubmissions.map(sub => (
-                        <li key={sub.id}>{sub.dataSourceCode} - {sub.comment}</li>
-                    ))}
-                </ul>
-            </div>
+            <h3>Search Submissions by Data Source Code:</h3>
+            <SearchComponent submissions={submissions} setFilteredSubmissions={setFilteredSubmissions} />
+            <ul>
+                {filteredSubmissions.map(sub => (
+                    <li key={sub.id}>{sub.dataSourceCode} - {sub.comment}</li>
+                ))}
+            </ul>
         </div>
     );
 }
