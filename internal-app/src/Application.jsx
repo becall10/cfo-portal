@@ -1,6 +1,7 @@
 // Attest.jsx
 
 import React, { useState } from 'react';
+import './Attest.css'; // Assuming you have an external CSS file for styles
 
 function Attest({ addSubmission }) {
     const [dataSourceCode, setDataSourceCode] = useState('');
@@ -41,7 +42,8 @@ function Attest({ addSubmission }) {
 
     return (
         <div>
-            <h2>Submit Your Data</h2>
+            <h1>Data Interface Details</h1>
+            <div className="form-spacer"></div> {/* Additional spacing before form starts */}
             <form onSubmit={handleSubmit}>
                 <div>
                     <label>
