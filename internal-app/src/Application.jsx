@@ -1,7 +1,6 @@
 // SearchComponent.jsx
 
 import React, { useState } from 'react';
-import './SearchComponent.css'; // Import the CSS for styling
 
 function SearchComponent({ submissions }) {
     const [filters, setFilters] = useState({
@@ -41,9 +40,17 @@ function SearchComponent({ submissions }) {
         <div>
             <h3>Advanced Search</h3>
             <div>
-                {/* Form fields here */}
+                <input type="text" name="dataSourceCode" value={filters.dataSourceCode} onChange={handleInputChange} placeholder="Data Source Code" />
+                <input type="text" name="processTrackId" value={filters.processTrackId} onChange={handleInputChange} placeholder="Process Track ID" />
+                <input type="text" name="description" value={filters.description} onChange={handleInputChange} placeholder="Description" />
+                <input type="date" name="batchDate" value={filters.batchDate} onChange={handleInputChange} />
+                <input type="text" name="comment" value={filters.comment} onChange={handleInputChange} placeholder="Comment" />
+                <input type="checkbox" name="noData" checked={filters.noData} onChange={handleInputChange} /> No Data
+                <input type="checkbox" name="forceComplete" checked={filters.forceComplete} onChange={handleInputChange} /> Force Complete
+                <input type="checkbox" name="reprocess" checked={filters.reprocess} onChange={handleInputChange} /> Reprocess
+                <input type="checkbox" name="attestation" checked={filters.attestation} onChange={handleInputChange} /> Attestation
+                <button onClick={handleSearch}>Search</button>
             </div>
-            <button onClick={handleSearch}>Search</button>
             {filteredSubmissions.length > 0 && (
                 <table>
                     <thead>
