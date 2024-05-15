@@ -1,7 +1,7 @@
 // SearchComponent.jsx
 
 import React, { useState } from 'react';
-import './app.css'; // Ensure the CSS is linked for styling
+import './SearchComponent.css'; // Import the CSS for styling
 
 function SearchComponent({ submissions }) {
     const [filters, setFilters] = useState({
@@ -27,25 +27,24 @@ function SearchComponent({ submissions }) {
     };
 
     const handleSearch = () => {
-        const results = submissions.filter(submission => {
+        setFilteredSubmissions(submissions.filter(submission => {
             return Object.keys(filters).every(key => {
                 if (typeof filters[key] === 'boolean') {
                     return filters[key] === submission[key];
                 }
                 return submission[key].toLowerCase().includes(filters[key].toLowerCase());
             });
-        });
-        setFilteredSubmissions(results);
+        }));
     };
 
     return (
         <div>
             <h3>Advanced Search</h3>
             <div>
-                {/* Input fields and labels as previously defined */}
+                {/* Form fields here */}
             </div>
             <button onClick={handleSearch}>Search</button>
-            {filteredSubmissions.length > 0 ? (
+            {filteredSubmissions.length > 0 && (
                 <table>
                     <thead>
                         <tr>
@@ -76,8 +75,6 @@ function SearchComponent({ submissions }) {
                         ))}
                     </tbody>
                 </table>
-            ) : (
-                <div>There is no data. Please try with new search criteria.</div>
             )}
         </div>
     );
