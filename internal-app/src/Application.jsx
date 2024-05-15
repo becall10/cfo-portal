@@ -1,4 +1,16 @@
-// App.js
+  <Routes>
+                    <Route path="/" element={<h1>Welcome to the Submission and Search Application</h1>} exact />
+                    <Route path="/attest" element={<Attest addSubmission={addSubmission} />} />
+                    <Route path="/search" element={<SearchComponent submissions={submissions} />} />
+                    <Route path="/history" element={<History />} />
+                </Routes>// App.js
+
+
+
+
+
+
+
 
 import React, { useState } from 'react';
 import Attest from './Attest';
