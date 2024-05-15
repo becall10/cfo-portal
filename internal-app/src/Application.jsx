@@ -1,108 +1,139 @@
-// Attest.jsx
+// SearchComponent.jsx
 
 import React, { useState } from 'react';
-import './Attest.css'; // Assuming you have an external CSS file for styles
 
-function Attest({ addSubmission }) {
-    const [dataSourceCode, setDataSourceCode] = useState('');
-    const [processTrackId, setProcessTrackId] = useState('');
-    const [description, setDescription] = useState('');
-    const [batchDate, setBatchDate] = useState('');
-    const [comment, setComment] = useState('');
-    const [noData, setNoData] = useState(false);
-    const [forceComplete, setForceComplete] = useState(false);
-    const [reprocess, setReprocess] = useState(false);
-    const [attestation, setAttestation] = useState(false);
+function SearchComponent({ submissions }) {
+    const [filters, setFilters] = useState({
+        dataSourceCode: '',
+        processTrackId: '',
+        description: '',
+        batchDate: '',
+        comment: '',
+        noData: false,
+        forceComplete: false,
+        reprocess: false,
+        attestation: false
+    });
 
-    const handleSubmit = (event) => {
-        event.preventDefault();
-        const newSubmission = {
-            dataSourceCode,
-            processTrackId,
-            description,
-            batchDate,
-            comment,
-            noData,
-            forceComplete,
-            reprocess,
-            attestation
-        };
-        addSubmission(newSubmission);
-        // Reset form after submission
-        setDataSourceCode('');
-        setProcessTrackId('');
-        setDescription('');
-        setBatchDate('');
-        setComment('');
-        setNoData(false);
-        setForceComplete(false);
-        setReprocess(false);
-        setAttestation(false);
+    const [filteredSubmissions, setFilteredSubmissions] = useState([]);
+
+    const handleInputChange = (event) => {
+        const { name, value, type, checked } = event.target;
+        setFilters(prevFilters => ({
+            ...prevFilters,
+            [name]: type === 'checkbox' ? checked : value
+        }));
+    };
+
+    const handleSearch = () => {
+        setFilteredSubmissions(submissions.filter(submission => {
+            return Object.keys(filters).every(key => {
+                if (typeof filters[key] === 'boolean') {
+                    return filters[key] === submission[key];
+                }
+                return submission[key].toLowerCase().includes(filters[key].toLowerCase());
+            });
+        }));
     };
 
     return (
         <div>
-            <h1>Data Interface Details</h1>
-            <div className="form-spacer"></div> {/* Additional spacing before form starts */}
-            <form onSubmit={handleSubmit}>
-                <div>
-                    <label>
-                        Data Source Code:
-                        <input type="text" value={dataSourceCode} onChange={e => setDataSourceCode(e.target.value)} />
-                    </label>
-                </div>
-                <div>
-                    <label>
-                        Process Track ID:
-                        <input type="text" value={processTrackId} onChange={e => setProcessTrackId(e.target.value)} />
-                    </label>
-                </div>
-                <div>
-                    <label>
-                        Description:
-                        <input type="text" value={description} onChange={e => setDescription(e.target.value)} />
-                    </label>
-                </div>
-                <div>
-                    <label>
-                        Batch Date:
-                        <input type="date" value={batchDate} onChange={e => setBatchDate(e.target.value)} />
-                    </label>
-                </div>
-                <div>
-                    <label>
-                        Comment:
-                        <textarea value={comment} onChange={e => setComment(e.target.value)} />
-                    </label>
-                </div>
-                <div>
-                    <label>
-                        No Data:
-                        <input type="checkbox" checked={noData} onChange={e => setNoData(e.target.checked)} />
-                    </label>
-                </div>
-                <div>
-                    <label>
-                        Force Complete:
-                        <input type="checkbox" checked={forceComplete} onChange={e => setForceComplete(e.target.checked)} />
-                    </label>
-                </div>
-                <div>
-                    <label>
-                        Reprocess:
-                        <input type="checkbox" checked={reprocess} onChange={e => setReprocess(e.target.checked)} />
-                    </label>
-                </div>
-                <div>
-                    <label>
-                        Attestation:
-                        <input type="checkbox" checked={attestation} onChange={e => setAttestation(e.target.checked)} />
-                    </label>
-                </div>
-                <button type="submit">Submit</button>
-            </form>
+            <h3>Advanced Search</h3>
+            <div>
+                <label>
+                    Data Source Code:
+                    <input
+                        type="text"
+                        name="dataSourceCode"
+                        value={filters.dataSourceCode}
+                        onChange={handleInputChange}
+                    />
+                </label>
+                <label>
+                    Process Track ID:
+                    <input
+                        type="text"
+                        name="processTrackId"
+                        value={filters.processTrackId}
+                        onChange={handleInputChange}
+                    />
+                </label>
+                <label>
+                    Description:
+                    <input
+                        type="text"
+                        name="description"
+                        value={filters.description}
+                        onChange={handleInputChange}
+                    />
+                </label>
+                <label>
+                    Batch Date:
+                    <input
+                        type="date"
+                        name="batchDate"
+                        value={filters.batchDate}
+                        onChange={handleInputChange}
+                    />
+                </label>
+                <label>
+                    Comment:
+                    <input
+                        type="text"
+                        name="comment"
+                        value={filters.comment}
+                        onChange={handleInputChange}
+                    />
+                </label>
+                <label>
+                    No Data:
+                    <input
+                        type="checkbox"
+                        name="noData"
+                        checked={filters.noData}
+                        onChange={handleInputChange}
+                    />
+                </label>
+                <label>
+                    Force Complete:
+                    <input
+                        type="checkbox"
+                        name="forceComplete"
+                        checked={filters.forceComplete}
+                        onChange={handleInputChange}
+                    />
+                </label>
+                <label>
+                    Reprocess:
+                    <input
+                        type="checkbox"
+                        name="reprocess"
+                        checked={filters.reprocess}
+                        onChange={handleInputChange}
+                    />
+                </label>
+                <label>
+                    Attestation:
+                    <input
+                        type="checkbox"
+                        name="attestation"
+                        checked={filters.attestation}
+                        onChange={handleInputChange}
+                    />
+                </label>
+            </div>
+            <button onClick={handleSearch}>Search</button>
+            <ul>
+                {filteredSubmissions.map(sub => (
+                    <li key={sub.id}>
+                        {sub.dataSourceCode}, {sub.processTrackId}, {sub.description}, {sub.batchDate}, {sub.comment}, 
+                        {sub.noData ? 'No Data' : ''}, {sub.forceComplete ? 'Force Complete' : ''}, 
+                        {sub.reprocess ? 'Reprocess' : ''}, {sub.attestation ? 'Attestation' : ''}
+                    </li>
+                ))}
+            </ul>
         </div>
     );
 }
 
-export default Attest;
+export default SearchComponent;
