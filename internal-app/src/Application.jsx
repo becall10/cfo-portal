@@ -1,75 +1,88 @@
-import React from 'react';
-import { useForm } from 'react-hook-form';
+import React, { useState } from 'react';
 
 function Form({ addEntry }) {
-    const { register, handleSubmit, reset, formState: { errors } } = useForm();
+    const [dataSourceCode, setDataSourceCode] = useState('');
+    const [processTrackId, setProcessTrackId] = useState('');
+    const [description, setDescription] = useState('');
+    const [batchDate, setBatchDate] = useState('');
+    const [comment, setComment] = useState('');
+    const [attest, setAttest] = useState(false);
 
-    const onSubmit = data => {
+    const handleSubmit = (e) => {
+        e.preventDefault(); // Prevent form submission from reloading the page
         addEntry({
-            ...data,
-            processTrackId: Number(data.processTrackId), // Convert processTrackId to number
-            Attest: data.Attest || false // Ensure boolean value
+            dataSourceCode,
+            processTrackId: Number(processTrackId), // Convert to number
+            Description: description,
+            "Batch Date": batchDate,
+            Comment: comment,
+            Attest: attest
         });
-        reset(); // Reset the form fields after submission
+        // Reset form fields
+        setDataSourceCode('');
+        setProcessTrackId('');
+        setDescription('');
+        setBatchDate('');
+        setComment('');
+        setAttest(false);
     };
 
     return (
-        <form onSubmit={handleSubmit(onSubmit)}>
+        <form onSubmit={handleSubmit}>
             <input 
-                {...register("dataSourceCode", { required: true })}
+                type="text"
+                value={dataSourceCode}
+                onChange={(e) => setDataSourceCode(e.target.value)}
                 placeholder="Data Source Code"
             />
-            {errors.dataSourceCode && <p>Data Source Code is required.</p>}
-
             <input 
                 type="number"
-                {...register("processTrackId", { required: true })}
+                value={processTrackId}
+                onChange={(e) => setProcessTrackId(e.target.value)}
                 placeholder="Process Track ID"
             />
-            {errors.processTrackId && <p>Process Track ID is required.</p>}
-
             <input 
-                {...register("Description", { required: true })}
+                type="text"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
                 placeholder="Description"
             />
-            {errors.Description && <p>Description is required.</p>}
-
             <input 
                 type="date"
-                {...register("Batch Date", { required: true })}
+                value={batchDate}
+                onChange={(e) => setBatchDate(e.target.value)}
                 placeholder="Batch Date"
             />
-            {errors["Batch Date"] && <p>Batch Date is required.</p>}
-
             <input 
-                {...register("Comment", { required: true })}
+                type="text"
+                value={comment}
+                onChange={(e) => setComment(e.target.value)}
                 placeholder="Comment"
             />
-            {errors.Comment && <p>Comment is required.</p>}
-
             <label>
                 Attest:
                 <input 
                     type="checkbox"
-                    {...register("Attest")}
+                    checked={attest}
+                    onChange={(e) => setAttest(e.target.checked)}
                 />
             </label>
-
             <button type="submit">Add Entry</button>
         </form>
     );
 }
 
 export default Form;
------------------------
+***********
+
     import React, { useState } from 'react';
-import Form from './Form'; // Adjust the path as necessary
+import Form from './Form'; // Make sure the path is correct based on your project structure
 
 function DataStorageApp() {
     const [entries, setEntries] = useState([]);
 
     const addEntry = (newEntry) => {
-        setEntries(prevEntries => [...prevEntries, newEntry]);
+        setEntries([...entries, newEntry]);
     };
 
     return (
@@ -85,4 +98,3 @@ function DataStorageApp() {
 }
 
 export default DataStorageApp;
-
