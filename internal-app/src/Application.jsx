@@ -46,21 +46,27 @@ function SearchComponent({ submissions }) {
             return;
         }
 
+        // Filter submissions based on the criteria
         const results = submissions.filter(submission => {
             const submissionDate = submission.batchDate ? new Date(submission.batchDate) : null;
             const startDate = filters.startDate ? new Date(filters.startDate) : null;
             const endDate = filters.endDate ? new Date(filters.endDate) : new Date();
+
             return (
                 (!startDate || !submissionDate || submissionDate >= startDate) &&
                 (!endDate || !submissionDate || submissionDate <= endDate) &&
                 Object.keys(filters).every(key => {
                     if (['startDate', 'endDate'].includes(key)) {
-                        return true;
+                        return true; // Skip date range keys in the normal filtering logic
                     }
                     if (typeof filters[key] === 'boolean') {
-                        return filters[key] === submission[key];
+                        if (filters[key]) return submission[key] === filters[key];
+                        return true; // If the checkbox is false, do not filter out items based on this field.
                     }
-                    return submission[key].toLowerCase().includes(filters[key].toLowerCase());
+                    if (submission[key]) {
+                        return submission[key].toLowerCase().includes(filters[key].toLowerCase());
+                    }
+                    return true;
                 })
             );
         });
@@ -68,6 +74,8 @@ function SearchComponent({ submissions }) {
         setFilteredSubmissions(results);
         if (results.length === 0) {
             setErrorMessage('No results found for the selected criteria.');
+        } else {
+            setErrorMessage(''); // Clear any error messages if results are found
         }
     };
 
@@ -90,7 +98,34 @@ function SearchComponent({ submissions }) {
             </div>
             {filteredSubmissions.length > 0 && (
                 <table>
-                    {/* Table headers and data rows */}
+                    <thead>
+                        <tr>
+                            <th>Data Source Code</th>
+                            <th>Process Track ID</th>
+                            <th>Description</th>
+                            <th>Batch Date</th>
+                            <th>Comment</th>
+                            <th>No Data</th>
+                            <th>Force Complete</th>
+                            <th>Reprocess</th>
+                            <th>Attestation</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {filteredSubmissions.map((sub, index) => (
+                            <tr key={index}>
+                                <td>{sub.dataSourceCode}</td>
+                                <td>{sub.processTrackId}</td>
+                                <td>{sub.description}</td>
+                                <td>{sub.batchDate}</td>
+                                <td>{sub.comment}</td>
+                                <td>{sub.noData ? 'Yes' : 'No'}</td>
+                                <td>{sub.forceComplete ? 'Yes' : 'No'}</td>
+                                <td>{sub.reprocess ? 'Yes' : 'No'}</td>
+                                <td>{sub.attestation ? 'Yes' : 'No'}</td>
+                            </tr>
+                        ))}
+                    </tbody>
                 </table>
             )}
         </div>
