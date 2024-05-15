@@ -3,23 +3,29 @@
 import React, { useState } from 'react';
 
 function Attest({ addSubmission }) {
-    const [dataSourceCode, setDataSourceCode] = useState('');
-    const [processTrackId, setProcessTrackId] = useState('');
-    const [description, setDescription] = useState('');
-    const [batchDate, setBatchDate] = useState('');
+    const [dataInterfaceDetails, setDataInterfaceDetails] = useState({
+        dataSourceCode: '',
+        processTrackId: '',
+        description: '',
+        batchDate: ''
+    });
     const [comment, setComment] = useState('');
     const [noData, setNoData] = useState(false);
     const [forceComplete, setForceComplete] = useState(false);
     const [reprocess, setReprocess] = useState(false);
     const [attestation, setAttestation] = useState(false);
 
+    const handleInputChange = (e) => {
+        setDataInterfaceDetails({
+            ...dataInterfaceDetails,
+            [e.target.name]: e.target.value
+        });
+    };
+
     const handleSubmit = (event) => {
         event.preventDefault();
         const newSubmission = {
-            dataSourceCode,
-            processTrackId,
-            description,
-            batchDate,
+            dataInterfaceDetails,
             comment,
             noData,
             forceComplete,
@@ -28,10 +34,12 @@ function Attest({ addSubmission }) {
         };
         addSubmission(newSubmission);
         // Reset form after submission
-        setDataSourceCode('');
-        setProcessTrackId('');
-        setDescription('');
-        setBatchDate('');
+        setDataInterfaceDetails({
+            dataSourceCode: '',
+            processTrackId: '',
+            description: '',
+            batchDate: ''
+        });
         setComment('');
         setNoData(false);
         setForceComplete(false);
@@ -45,39 +53,39 @@ function Attest({ addSubmission }) {
             <form onSubmit={handleSubmit}>
                 <label>
                     Data Source Code:
-                    <input type="text" value={dataSourceCode} onChange={e => setDataSourceCode(e.target.value)} />
+                    <input type="text" name="dataSourceCode" value={dataInterfaceDetails.dataSourceCode} onChange={handleInputChange} />
                 </label>
                 <label>
                     Process Track ID:
-                    <input type="text" value={processTrackId} onChange={e => setProcessTrackId(e.target.value)} />
+                    <input type="text" name="processTrackId" value={dataInterfaceDetails.processTrackId} onChange={handleInputChange} />
                 </label>
                 <label>
                     Description:
-                    <input type="text" value={description} onChange={e => setDescription(e.target.value)} />
+                    <input type="text" name="description" value={dataInterfaceDetails.description} onChange={handleInputChange} />
                 </label>
                 <label>
                     Batch Date:
-                    <input type="text" value={batchDate} onChange={e => setBatchDate(e.target.value)} />
+                    <input type="text" name="batchDate" value={dataInterfaceDetails.batchDate} onChange={handleInputChange} />
                 </label>
                 <label>
                     Comment:
-                    <textarea value={comment} onChange={e => setComment(e.target.value)} />
+                    <textarea value={comment} onChange={(e) => setComment(e.target.value)} />
                 </label>
                 <label>
                     No Data:
-                    <input type="checkbox" checked={noData} onChange={e => setNoData(e.target.checked)} />
+                    <input type="checkbox" checked={noData} onChange={(e) => setNoData(e.target.checked)} />
                 </label>
                 <label>
                     Force Complete:
-                    <input type="checkbox" checked={forceComplete} onChange={e => setForceComplete(e.target.checked)} />
+                    <input type="checkbox" checked={forceComplete} onChange={(e) => setForceComplete(e.target.checked)} />
                 </label>
                 <label>
                     Reprocess:
-                    <input type="checkbox" checked={reprocess} onChange={e => setReprocess(e.target.checked)} />
+                    <input type="checkbox" checked={reprocess} onChange={(e) => setReprocess(e.target.checked)} />
                 </label>
                 <label>
                     Attestation:
-                    <input type="checkbox" checked={attestation} onChange={e => setAttestation(e.target.checked)} />
+                    <input type="checkbox" checked={attestation} onChange={(e) => setAttestation(e.target.checked)} />
                 </label>
                 <button type="submit">Submit</button>
             </form>
