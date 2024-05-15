@@ -43,42 +43,60 @@ function Attest({ addSubmission }) {
         <div>
             <h2>Submit Your Data</h2>
             <form onSubmit={handleSubmit}>
-                <label>
-                    Data Source Code:
-                    <input type="text" value={dataSourceCode} onChange={e => setDataSourceCode(e.target.value)} />
-                </label>
-                <label>
-                    Process Track ID:
-                    <input type="text" value={processTrackId} onChange={e => setProcessTrackId(e.target.value)} />
-                </label>
-                <label>
-                    Description:
-                    <input type="text" value={description} onChange={e => setDescription(e.target.value)} />
-                </label>
-                <label>
-                    Batch Date:
-                    <input type="text" value={batchDate} onChange={e => setBatchDate(e.target.value)} />
-                </label>
-                <label>
-                    Comment:
-                    <textarea value={comment} onChange={e => setComment(e.target.value)} />
-                </label>
-                <label>
-                    No Data:
-                    <input type="checkbox" checked={noData} onChange={e => setNoData(e.target.checked)} />
-                </label>
-                <label>
-                    Force Complete:
-                    <input type="checkbox" checked={forceComplete} onChange={e => setForceComplete(e.target.checked)} />
-                </label>
-                <label>
-                    Reprocess:
-                    <input type="checkbox" checked={reprocess} onChange={e => setReprocess(e.target.checked)} />
-                </label>
-                <label>
-                    Attestation:
-                    <input type="checkbox" checked={attestation} onChange={e => setAttestation(e.target.checked)} />
-                </label>
+                <div>
+                    <label>
+                        Data Source Code:
+                        <input type="text" value={dataSourceCode} onChange={e => setDataSourceCode(e.target.value)} />
+                    </label>
+                </div>
+                <div>
+                    <label>
+                        Process Track ID:
+                        <input type="text" value={processTrackId} onChange={e => setProcessTrackId(e.target.value)} />
+                    </label>
+                </div>
+                <div>
+                    <label>
+                        Description:
+                        <input type="text" value={description} onChange={e => setDescription(e.target.value)} />
+                    </label>
+                </div>
+                <div>
+                    <label>
+                        Batch Date:
+                        <input type="date" value={batchDate} onChange={e => setBatchDate(e.target.value)} />
+                    </label>
+                </div>
+                <div>
+                    <label>
+                        Comment:
+                        <textarea value={comment} onChange={e => setComment(e.target.value)} />
+                    </label>
+                </div>
+                <div>
+                    <label>
+                        No Data:
+                        <input type="checkbox" checked={noData} onChange={e => setNoData(e.target.checked)} />
+                    </label>
+                </div>
+                <div>
+                    <label>
+                        Force Complete:
+                        <input type="checkbox" checked={forceComplete} onChange={e => setForceComplete(e.target.checked)} />
+                    </label>
+                </div>
+                <div>
+                    <label>
+                        Reprocess:
+                        <input type="checkbox" checked={reprocess} onChange={e => setReprocess(e.target.checked)} />
+                    </label>
+                </div>
+                <div>
+                    <label>
+                        Attestation:
+                        <input type="checkbox" checked={attestation} onChange={e => setAttestation(e.target.checked)} />
+                    </label>
+                </div>
                 <button type="submit">Submit</button>
             </form>
         </div>
