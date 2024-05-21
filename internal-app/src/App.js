@@ -1,73 +1,129 @@
-import React, { useState, useEffect } from "react";
+// src/components/Dashboard.js
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { Line } from 'react-chartjs-2';
 
-import ApplicationCard from "./ApplicationCard";
-import SearchIcon from "./search.svg";
-import "./App.css";
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import NavigationBar from './NavigationBar';
-import Home from './Home';
-import Application from './Application';
-import Contact from './Contact';
-
-
-const API_URL = "http://www.omdbapi.com?apikey=b88a1e25";
-
-const App = () => {
-
-  const [searchTerm, setSearchTerm] = useState("");
-  const [applications, setapplications] = useState([]);
+const Dashboard = () => {
+  const [data, setData] = useState([]);
+  
+  // Function to fetch data (simulating real-time updates)
+  const fetchData = async () => {
+    const response = await axios.get('https://api.example.com/data');
+    setData(response.data);
+  };
 
   useEffect(() => {
-    searchapplications("Batman");
+    // Fetch data initially
+    fetchData();
+    
+    // Set interval to fetch data every 5 seconds
+    const interval = setInterval(fetchData, 5000);
+    
+    // Cleanup interval on component unmount
+    return () => clearInterval(interval);
   }, []);
 
-  const searchapplications = async (title) => {
-    const response = await fetch(`${API_URL}&s=${title}`);
-    const data = await response.json();
-
-    setapplications(data.Search);
+  const chartData = {
+    labels: data.map((item) => item.timestamp),
+    datasets: [
+      {
+        label: 'Real-time Data',
+        data: data.map((item) => item.value),
+        borderColor: 'rgba(75,192,192,1)',
+        fill: false,
+      },
+    ],
   };
 
   return (
-    <div className="app">
-      <h1>CFO PORTAL</h1>
-      <Router>
-      <div className='navBar'>
-        <NavigationBar />
-        <Routes>
-        <Route path="/" element={<Home />} />
-          <Route path="/apps" element={<Application />} />
-          <Route path="/contact" element={<Contact />} />
-        </Routes>
-      </div>
-    </Router>
+    <div>
+      <h2>Real-time Dashboard</h2>
+      <Line data={chartData} />
+    </div>
+  );
+};
 
-      <div className="search">
-        <input
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          placeholder="Search for applications"
-        />
-        <img
-          src={SearchIcon}
-          alt="search"
-          onClick={() => searchapplications(searchTerm)}
-        />
-      </div>
+export default Dashboard;
+************************************
+  // src/mockServer.js
+import { Server } from 'miragejs';
 
-      {applications?.length > 0 ? (
-        <div className="container">
-          {applications.map((application) => (
-            <ApplicationCard application={application} />
-          ))}
-        </div>
-      ) : (
-        <div className="empty">
-          <h2>No applications found</h2>
-        </div>
-      )}
+new Server({
+  routes() {
+    this.namespace = 'api';
+
+    this.get('/data', () => {
+      return [
+        { timestamp: '2023-01-01T00:00:00Z', value: 10 },
+        { timestamp: '2023-01-01T00:00:05Z', value: 20 },
+        { timestamp: '2023-01-01T00:00:10Z', value: 30 },
+        // Add more mock data points as needed
+      ];
+    });
+  },
+});
+*******************************************
+  // src/index.js
+import React from 'react';
+import ReactDOM from 'react-dom';
+import './index.css';
+import App from './App';
+import './mockServer'; // Import mock server
+
+ReactDOM.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>,
+  document.getElementById('root')
+);
+*****************
+// src/App.js
+import React from 'react';
+import Dashboard from './components/Dashboard';
+
+const App = () => {
+  return (
+    <div className="App">
+      <Dashboard />
     </div>
   );
 };
 
 export default App;
+*****************
+  /* src/index.css */
+body {
+  font-family: Arial, sans-serif;
+}
+
+.App {
+  text-align: center;
+  padding: 20px;
+}
+
+h2 {
+  margin-bottom: 20px;
+}
+******************
+  // src/components/Dashboard.js (continued)
+const options = {
+  responsive: true,
+  scales: {
+    x: {
+      type: 'time',
+      time: {
+        unit: 'second',
+      },
+    },
+  },
+};
+
+return (
+  <div>
+    <h2>Real-time Dashboard</h2>
+    <Line data={chartData} options={options} />
+  </div>
+);
+*******************************
+
+
