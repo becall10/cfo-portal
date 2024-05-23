@@ -1,32 +1,3 @@
-// src/mockServer.js
-import { createServer } from 'miragejs';
-
-const generateData = () => {
-  const now = new Date();
-  let data = [];
-  for (let i = 0; i < 12; i++) {
-    data.push({
-      timestamp: new Date(now.getTime() + i * 5000).toISOString(),
-      SourceSystemBalance: Math.floor(Math.random() * 1000),
-      OfsaaRawBalance: Math.floor(Math.random() * 1000) + 1000,
-    });
-  }
-  return data;
-};
-
-let data = generateData();
-
-createServer({
-  routes() {
-    this.namespace = 'api';
-
-    this.get('/data', () => {
-      return data.shift();
-    });
-  },
-});
-**********************
-
 // src/components/Dashboard.js
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
@@ -108,10 +79,92 @@ const Dashboard = () => {
     <div>
       <h2>Real-time Dashboard</h2>
       <Line data={chartData} options={options} />
+      <h3>Balance Differences</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Timestamp</th>
+            <th>Source System Balance</th>
+            <th>OFSAA Raw Balance</th>
+            <th>Difference</th>
+          </tr>
+        </thead>
+        <tbody>
+          {data.map((item, index) => (
+            <tr key={index}>
+              <td>{item.timestamp}</td>
+              <td>{item.SourceSystemBalance}</td>
+              <td>{item.OfsaaRawBalance}</td>
+              <td>{item.OfsaaRawBalance - item.SourceSystemBalance}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 };
 
 export default Dashboard;
-**************************
+*********************************
+  /* src/index.css */
+body {
+  font-family: Arial, sans-serif;
+}
+
+.App {
+  text-align: center;
+  padding: 20px;
+}
+
+nav {
+  background-color: #333;
+  padding: 10px;
+}
+
+nav ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  justify-content: space-around;
+}
+
+nav ul li {
+  display: inline;
+}
+
+nav ul li a {
+  color: white;
+  text-decoration: none;
+  padding: 5px 10px;
+}
+
+nav ul li a:hover {
+  background-color: #555;
+  border-radius: 5px;
+}
+
+h2 {
+  margin-bottom: 20px;
+}
+
+h3 {
+  margin-top: 20px;
+}
+
+table {
+  margin: 20px auto;
+  border-collapse: collapse;
+  width: 80%;
+}
+
+table, th, td {
+  border: 1px solid black;
+}
+
+th, td {
+  padding: 8px;
+  text-align: center;
+}
+************************
 
