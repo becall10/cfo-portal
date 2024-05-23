@@ -1,3 +1,32 @@
+// src/mockServer.js
+import { createServer } from 'miragejs';
+
+const generateData = () => {
+  const now = new Date();
+  let data = [];
+  for (let i = 0; i < 12; i++) {
+    data.push({
+      timestamp: new Date(now.getTime() + i * 5000).toISOString(),
+      SourceSystemBalance: Math.floor(Math.random() * 1000),
+      OfsaaRawBalance: Math.floor(Math.random() * 1000) + 1000,
+    });
+  }
+  return data;
+};
+
+let data = generateData();
+
+createServer({
+  routes() {
+    this.namespace = 'api';
+
+    this.get('/data', () => {
+      return data.shift();
+    });
+  },
+});
+**********************
+
 // src/components/Dashboard.js
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
@@ -11,7 +40,7 @@ import {
   Title,
   Tooltip,
   Legend,
-  TimeScale
+  TimeScale,
 } from 'chart.js';
 import 'chartjs-adapter-date-fns';
 
@@ -30,20 +59,18 @@ ChartJS.register(
 const Dashboard = () => {
   const [data, setData] = useState([]);
 
-  // Function to fetch data (simulating real-time updates)
   const fetchData = async () => {
-    const response = await axios.get('/api/data'); // Ensure the URL matches the namespace
-    setData(response.data);
+    const response = await axios.get('/api/data');
+    setData((prevData) => [...prevData, response.data]);
   };
 
   useEffect(() => {
-    // Fetch data initially
-    fetchData();
+    fetchData(); // Fetch data initially
 
-    // Set interval to fetch data every 5 seconds
-    const interval = setInterval(fetchData, 5000);
+    const interval = setInterval(() => {
+      fetchData();
+    }, 5000);
 
-    // Cleanup interval on component unmount
     return () => clearInterval(interval);
   }, []);
 
@@ -51,9 +78,15 @@ const Dashboard = () => {
     labels: data.map((item) => item.timestamp),
     datasets: [
       {
-        label: 'Real-time Data',
-        data: data.map((item) => item.value),
+        label: 'Source System Balance',
+        data: data.map((item) => item.SourceSystemBalance),
         borderColor: 'rgba(75,192,192,1)',
+        fill: false,
+      },
+      {
+        label: 'OFSAA Raw Balance',
+        data: data.map((item) => item.OfsaaRawBalance),
+        borderColor: 'rgba(255,99,132,1)',
         fill: false,
       },
     ],
@@ -80,3 +113,5 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
+**************************
+
