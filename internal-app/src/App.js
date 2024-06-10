@@ -21,6 +21,10 @@ const Report = () => {
 
   const { getRootProps, getInputProps } = useDropzone({ onDrop });
 
+  const handleClose = () => {
+    setData([]);
+  };
+
   return (
     <div>
       <h1>Upload Report</h1>
@@ -29,24 +33,29 @@ const Report = () => {
         <p>Drag 'n' drop an Excel file here, or click to select one</p>
       </div>
       {data.length > 0 && (
-        <table>
-          <thead>
-            <tr>
-              {Object.keys(data[0]).map((key) => (
-                <th key={key}>{key}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {data.map((row, index) => (
-              <tr key={index}>
-                {Object.values(row).map((value, i) => (
-                  <td key={i}>{value}</td>
+        <div>
+          <button onClick={handleClose} style={{ margin: '10px', padding: '5px 10px', cursor: 'pointer' }}>
+            Close
+          </button>
+          <table>
+            <thead>
+              <tr>
+                {Object.keys(data[0]).map((key) => (
+                  <th key={key}>{key}</th>
                 ))}
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {data.map((row, index) => (
+                <tr key={index}>
+                  {Object.values(row).map((value, i) => (
+                    <td key={i}>{value}</td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
     </div>
   );
