@@ -1,129 +1,55 @@
-// src/components/Dashboard.js
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import { Line } from 'react-chartjs-2';
+import React, { useCallback, useState } from 'react';
+import { useDropzone } from 'react-dropzone';
+import * as XLSX from 'xlsx';
 
-const Dashboard = () => {
+const Report = () => {
   const [data, setData] = useState([]);
-  
-  // Function to fetch data (simulating real-time updates)
-  const fetchData = async () => {
-    const response = await axios.get('https://api.example.com/data');
-    setData(response.data);
-  };
 
-  useEffect(() => {
-    // Fetch data initially
-    fetchData();
-    
-    // Set interval to fetch data every 5 seconds
-    const interval = setInterval(fetchData, 5000);
-    
-    // Cleanup interval on component unmount
-    return () => clearInterval(interval);
+  const onDrop = useCallback((acceptedFiles) => {
+    const file = acceptedFiles[0];
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const data = new Uint8Array(e.target.result);
+      const workbook = XLSX.read(data, { type: 'array' });
+      const sheetName = workbook.SheetNames[0];
+      const worksheet = workbook.Sheets[sheetName];
+      const json = XLSX.utils.sheet_to_json(worksheet);
+      setData(json);
+    };
+    reader.readAsArrayBuffer(file);
   }, []);
 
-  const chartData = {
-    labels: data.map((item) => item.timestamp),
-    datasets: [
-      {
-        label: 'Real-time Data',
-        data: data.map((item) => item.value),
-        borderColor: 'rgba(75,192,192,1)',
-        fill: false,
-      },
-    ],
-  };
+  const { getRootProps, getInputProps } = useDropzone({ onDrop });
 
   return (
     <div>
-      <h2>Real-time Dashboard</h2>
-      <Line data={chartData} />
+      <h1>Upload Report</h1>
+      <div {...getRootProps()} style={{ border: '2px dashed #007bff', padding: '20px', textAlign: 'center' }}>
+        <input {...getInputProps()} />
+        <p>Drag 'n' drop an Excel file here, or click to select one</p>
+      </div>
+      {data.length > 0 && (
+        <table>
+          <thead>
+            <tr>
+              {Object.keys(data[0]).map((key) => (
+                <th key={key}>{key}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {data.map((row, index) => (
+              <tr key={index}>
+                {Object.values(row).map((value, i) => (
+                  <td key={i}>{value}</td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
     </div>
   );
 };
 
-export default Dashboard;
-************************************
-  // src/mockServer.js
-import { Server } from 'miragejs';
-
-new Server({
-  routes() {
-    this.namespace = 'api';
-
-    this.get('/data', () => {
-      return [
-        { timestamp: '2023-01-01T00:00:00Z', value: 10 },
-        { timestamp: '2023-01-01T00:00:05Z', value: 20 },
-        { timestamp: '2023-01-01T00:00:10Z', value: 30 },
-        // Add more mock data points as needed
-      ];
-    });
-  },
-});
-*******************************************
-  // src/index.js
-import React from 'react';
-import ReactDOM from 'react-dom';
-import './index.css';
-import App from './App';
-import './mockServer'; // Import mock server
-
-ReactDOM.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-  document.getElementById('root')
-);
-*****************
-// src/App.js
-import React from 'react';
-import Dashboard from './components/Dashboard';
-
-const App = () => {
-  return (
-    <div className="App">
-      <Dashboard />
-    </div>
-  );
-};
-
-export default App;
-*****************
-  /* src/index.css */
-body {
-  font-family: Arial, sans-serif;
-}
-
-.App {
-  text-align: center;
-  padding: 20px;
-}
-
-h2 {
-  margin-bottom: 20px;
-}
-******************
-  // src/components/Dashboard.js (continued)
-const options = {
-  responsive: true,
-  scales: {
-    x: {
-      type: 'time',
-      time: {
-        unit: 'second',
-      },
-    },
-  },
-};
-
-return (
-  <div>
-    <h2>Real-time Dashboard</h2>
-    <Line data={chartData} options={options} />
-  </div>
-);
-*******************************
-
-
+export default Report;
