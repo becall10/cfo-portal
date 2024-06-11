@@ -8,6 +8,7 @@ const SearchComponent = () => {
   const [id, setId] = useState('');
   const [nameDescription, setNameDescription] = useState('');
   const [status, setStatus] = useState('');
+  const [typeOfFile, setTypeOfFile] = useState('');
   const [message, setMessage] = useState('');
 
   const handleSubmit = (e) => {
@@ -22,6 +23,7 @@ const SearchComponent = () => {
       id,
       nameDescription,
       status,
+      typeOfFile,
     });
 
     // Display a message after 3 seconds
@@ -41,25 +43,43 @@ const SearchComponent = () => {
         <div style={styles.formGroup}>
           <label style={styles.label}>
             Category:
-            <input
-              type="text"
+            <select
               value={category}
               onChange={(e) => setCategory(e.target.value)}
               onFocus={clearMessage}
               style={styles.input}
-            />
+            >
+              <option value="" disabled>Select a category</option>
+              <option value="BARR Burndown Report">BARR Burndown Report</option>
+              <option value="BCM Controls CFO">BCM Controls CFO</option>
+              <option value="IM SUMMARY">IM SUMMARY</option>
+              <option value="P&P Review">P&P Review</option>
+              <option value="RCSA Gaps">RCSA Gaps</option>
+              <option value="UDA Certs">UDA Certs</option>
+            </select>
           </label>
         </div>
         <div style={styles.formGroup}>
           <label style={styles.label}>
             Direct Report:
-            <input
-              type="text"
+            <select
               value={directReport}
               onChange={(e) => setDirectReport(e.target.value)}
               onFocus={clearMessage}
               style={styles.input}
-            />
+            >
+              <option value="" disabled>Select a direct report</option>
+              <option value="Falls, Shannon">Falls, Shannon</option>
+              <option value="Polk, Christina">Polk, Christina</option>
+              <option value="Weber, Brad">Weber, Brad</option>
+              <option value="Garcia, Manuel">Garcia, Manuel</option>
+              <option value="Rubio, Lizette G">Rubio, Lizette G</option>
+              <option value="Monska, Doug P">Monska, Doug P</option>
+              <option value="Palmer, Kemile">Palmer, Kemile</option>
+              <option value="Woodward, Brian J">Woodward, Brian J</option>
+              <option value="Patranella, Chris M">Patranella, Chris M</option>
+              <option value="Repper, Michael">Repper, Michael</option>
+            </select>
           </label>
         </div>
         <div style={styles.formGroup}>
@@ -120,6 +140,21 @@ const SearchComponent = () => {
               onFocus={clearMessage}
               style={styles.input}
             />
+          </label>
+        </div>
+        <div style={styles.formGroup}>
+          <label style={styles.label}>
+            Type of File:
+            <select
+              value={typeOfFile}
+              onChange={(e) => setTypeOfFile(e.target.value)}
+              onFocus={clearMessage}
+              style={styles.input}
+            >
+              <option value="" disabled>Select a file type</option>
+              <option value="Original file">Original file</option>
+              <option value="Generated File">Generated File</option>
+            </select>
           </label>
         </div>
         <button type="submit" style={styles.button}>Submit</button>
