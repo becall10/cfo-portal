@@ -5,7 +5,7 @@ import { saveAs } from 'file-saver';
 
 const Report = () => {
   const [data, setData] = useState([]);
-  const [displayFilteredData, setDisplayFilteredData] = useState(false);
+  const [viewMode, setViewMode] = useState('original'); // 'original' or 'new'
 
   const requiredColumns = [
     'Category',
@@ -38,7 +38,6 @@ const Report = () => {
       const worksheet = workbook.Sheets[sheetName];
       const json = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
       setData(json);
-      setDisplayFilteredData(true);
     };
     reader.readAsArrayBuffer(file);
   }, []);
@@ -71,8 +70,32 @@ const Report = () => {
 
   const handleClose = () => {
     setData([]);
-    setDisplayFilteredData(false);
   };
+
+  const renderTable = (data, columns) => (
+    <table>
+      <thead>
+        <tr>
+          {columns.map((col) => (
+            <th key={col}>{col}</th>
+          ))}
+        </tr>
+      </thead>
+      <tbody>
+        {data.map((row, index) => (
+          <tr key={index}>
+            {columns.map((col) => (
+              <td key={col}>
+                {col === 'Category'
+                  ? 'UDA Certifications'
+                  : row[columnMappings[col.replace(/\//g, '')]] || ''}
+              </td>
+            ))}
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
 
   return (
     <div>
@@ -86,31 +109,26 @@ const Report = () => {
           <button onClick={handleClose} style={{ margin: '10px', padding: '5px 10px', cursor: 'pointer' }}>
             Close
           </button>
+          <button onClick={() => setViewMode('original')} style={{ margin: '10px', padding: '5px 10px', cursor: 'pointer' }}>
+            View Original File
+          </button>
+          <button onClick={() => setViewMode('new')} style={{ margin: '10px', padding: '5px 10px', cursor: 'pointer' }}>
+            View New File
+          </button>
           <button onClick={handleDownload} style={{ margin: '10px', padding: '5px 10px', cursor: 'pointer' }}>
             Download Filtered Data
           </button>
-          <table>
-            <thead>
-              <tr>
-                {requiredColumns.map((col) => (
-                  <th key={col}>{col}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {data.map((row, index) => (
-                <tr key={index}>
-                  {requiredColumns.map((col) => (
-                    <td key={col}>
-                      {col === 'Category'
-                        ? 'UDA Certifications'
-                        : row[columnMappings[col.replace(/\//g, '')]] || ''}
-                    </td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          {viewMode === 'original' && renderTable(data, data[0])}
+          {viewMode === 'new' && renderTable(data.map(row => requiredColumns.reduce((acc, col) => {
+            if (col === 'Category') {
+              acc[col] = 'UDA Certifications';
+            } else if (columnMappings[col.replace(/\//g, '')] !== undefined) {
+              acc[col] = row[columnMappings[col.replace(/\//g, '')]] || '';
+            } else {
+              acc[col] = '';
+            }
+            return acc;
+          }, {})), requiredColumns)}
         </div>
       )}
     </div>
