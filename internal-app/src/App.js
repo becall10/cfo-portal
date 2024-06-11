@@ -7,6 +7,7 @@ const Report = () => {
   const [data, setData] = useState([]);
   const [viewMode, setViewMode] = useState(null); // 'original', 'new', 'compare', or null
   const [uploadComplete, setUploadComplete] = useState(false);
+  const [emailSent, setEmailSent] = useState(false);
 
   const requiredColumns = [
     'Category',
@@ -41,6 +42,7 @@ const Report = () => {
       setData(json);
       setUploadComplete(true);
       setViewMode(null);
+      setEmailSent(false);
     };
     reader.readAsArrayBuffer(file);
   }, []);
@@ -71,10 +73,16 @@ const Report = () => {
     saveAs(blob, 'filtered_data.xlsx');
   };
 
+  const handleSendEmail = () => {
+    // Here you would implement your email sending logic
+    setEmailSent(true);
+  };
+
   const handleClose = () => {
     setData([]);
     setUploadComplete(false);
     setViewMode(null);
+    setEmailSent(false);
   };
 
   const renderTable = (data, columns) => (
@@ -171,6 +179,10 @@ const Report = () => {
           <button onClick={handleDownload} style={{ margin: '10px', padding: '5px 10px', cursor: 'pointer' }}>
             Download Filtered Data
           </button>
+          <button onClick={handleSendEmail} style={{ margin: '10px', padding: '5px 10px', cursor: 'pointer' }}>
+            Send Email
+          </button>
+          {emailSent && <p>Email has been sent.</p>}
           {renderContent()}
         </div>
       )}
