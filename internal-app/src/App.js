@@ -74,7 +74,6 @@ const Report = () => {
   };
 
   const handleSendEmail = () => {
-    // Here you would implement your email sending logic
     setEmailSent(true);
   };
 
