@@ -9,9 +9,16 @@ const ClientUpdate = () => {
   const [nameDescription, setNameDescription] = useState('');
   const [status, setStatus] = useState('');
   const [message, setMessage] = useState('');
+  const [error, setError] = useState('');
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    if (!category || !id) {
+      setError('Category and ID are mandatory fields.');
+      return;
+    }
+
     // Handle form submission logic here
     console.log('Form submitted with:', {
       category,
@@ -33,11 +40,13 @@ const ClientUpdate = () => {
       setId('');
       setNameDescription('');
       setStatus('');
+      setError('');
     }, 3000);
   };
 
   const clearMessage = () => {
     setMessage('');
+    setError('');
   };
 
   return (
@@ -46,13 +55,14 @@ const ClientUpdate = () => {
       <form onSubmit={handleSubmit} style={styles.form}>
         <div style={styles.formGroup}>
           <label style={styles.label}>
-            Category:
+            Category (mandatory):
             <input
               type="text"
               value={category}
               onChange={(e) => setCategory(e.target.value)}
               onFocus={clearMessage}
               style={styles.input}
+              required
             />
           </label>
         </div>
@@ -94,13 +104,14 @@ const ClientUpdate = () => {
         </div>
         <div style={styles.formGroup}>
           <label style={styles.label}>
-            ID:
+            ID (mandatory):
             <input
               type="text"
               value={id}
               onChange={(e) => setId(e.target.value)}
               onFocus={clearMessage}
               style={styles.input}
+              required
             />
           </label>
         </div>
@@ -130,6 +141,7 @@ const ClientUpdate = () => {
         </div>
         <button type="submit" style={styles.button}>Submit</button>
       </form>
+      {error && <p style={styles.error}>{error}</p>}
       {message && <p style={styles.message}>{message}</p>}
     </div>
   );
@@ -172,6 +184,13 @@ const styles = {
     border: 'none',
     borderRadius: '4px',
     cursor: 'pointer',
+  },
+  error: {
+    marginTop: '20px',
+    padding: '10px',
+    backgroundColor: '#f8d7da',
+    color: '#721c24',
+    borderRadius: '4px',
   },
   message: {
     marginTop: '20px',
