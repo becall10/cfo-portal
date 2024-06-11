@@ -121,24 +121,24 @@ const Report = () => {
       });
       return renderTable(newData, requiredColumns);
     } else if (viewMode === 'compare') {
+      const newData = data.map(row => {
+        const newRow = {};
+        requiredColumns.forEach(col => {
+          if (col === 'Category') {
+            newRow[col] = 'UDA Certifications';
+          } else if (columnMappings[col.replace(/\//g, '')] !== undefined) {
+            newRow[col] = row[columnMappings[col.replace(/\//g, '')]] || '';
+          } else {
+            newRow[col] = '';
+          }
+        });
+        return newRow;
+      });
       return (
         <div>
           <h2>Original File</h2>
           {renderTable(data, data[0])}
           <h2>New File</h2>
-          const newData = data.map(row => {
-            const newRow = {};
-            requiredColumns.forEach(col => {
-              if (col === 'Category') {
-                newRow[col] = 'UDA Certifications';
-              } else if (columnMappings[col.replace(/\//g, '')] !== undefined) {
-                newRow[col] = row[columnMappings[col.replace(/\//g, '')]] || '';
-              } else {
-                newRow[col] = '';
-              }
-            });
-            return newRow;
-          });
           {renderTable(newData, requiredColumns)}
         </div>
       );
