@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-const ClientUpdate = () => {
+const SearchComponent = () => {
   const [category, setCategory] = useState('');
   const [directReport, setDirectReport] = useState('');
   const [manager, setManager] = useState('');
@@ -19,8 +19,8 @@ const ClientUpdate = () => {
       return;
     }
 
-    // Handle form submission logic here
-    console.log('Form submitted with:', {
+    // Handle search logic here
+    console.log('Search initiated with:', {
       category,
       directReport,
       manager,
@@ -30,16 +30,9 @@ const ClientUpdate = () => {
       status,
     });
 
-    // Clear form and display a message after 3 seconds
+    // Display a message after 3 seconds
     setTimeout(() => {
-      setMessage('The update has been validated and the report has been updated.');
-      setCategory('');
-      setDirectReport('');
-      setManager('');
-      setEmployee('');
-      setId('');
-      setNameDescription('');
-      setStatus('');
+      setMessage('The search has been completed.');
       setError('');
     }, 3000);
   };
@@ -51,7 +44,7 @@ const ClientUpdate = () => {
 
   return (
     <div style={styles.container}>
-      <h1 style={styles.heading}>Client Update</h1>
+      <h1 style={styles.heading}>Search Component</h1>
       <form onSubmit={handleSubmit} style={styles.form}>
         <div style={styles.formGroup}>
           <label style={styles.label}>
@@ -201,4 +194,4 @@ const styles = {
   },
 };
 
-export default ClientUpdate;
+export default SearchComponent;
