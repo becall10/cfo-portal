@@ -23,9 +23,16 @@ const ClientUpdate = () => {
       status,
     });
 
-    // Display a message after 3 seconds
+    // Clear form and display a message after 3 seconds
     setTimeout(() => {
       setMessage('The update has been validated and the report has been updated.');
+      setCategory('');
+      setDirectReport('');
+      setManager('');
+      setEmployee('');
+      setId('');
+      setNameDescription('');
+      setStatus('');
     }, 3000);
   };
 
