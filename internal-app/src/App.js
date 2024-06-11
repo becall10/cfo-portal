@@ -9,15 +9,9 @@ const SearchComponent = () => {
   const [nameDescription, setNameDescription] = useState('');
   const [status, setStatus] = useState('');
   const [message, setMessage] = useState('');
-  const [error, setError] = useState('');
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
-    if (!category || !id) {
-      setError('Category and ID are mandatory fields.');
-      return;
-    }
 
     // Handle search logic here
     console.log('Search initiated with:', {
@@ -33,13 +27,11 @@ const SearchComponent = () => {
     // Display a message after 3 seconds
     setTimeout(() => {
       setMessage('The search has been completed.');
-      setError('');
     }, 3000);
   };
 
   const clearMessage = () => {
     setMessage('');
-    setError('');
   };
 
   return (
@@ -48,14 +40,13 @@ const SearchComponent = () => {
       <form onSubmit={handleSubmit} style={styles.form}>
         <div style={styles.formGroup}>
           <label style={styles.label}>
-            Category (mandatory):
+            Category:
             <input
               type="text"
               value={category}
               onChange={(e) => setCategory(e.target.value)}
               onFocus={clearMessage}
               style={styles.input}
-              required
             />
           </label>
         </div>
@@ -97,14 +88,13 @@ const SearchComponent = () => {
         </div>
         <div style={styles.formGroup}>
           <label style={styles.label}>
-            ID (mandatory):
+            ID:
             <input
               type="text"
               value={id}
               onChange={(e) => setId(e.target.value)}
               onFocus={clearMessage}
               style={styles.input}
-              required
             />
           </label>
         </div>
@@ -134,7 +124,6 @@ const SearchComponent = () => {
         </div>
         <button type="submit" style={styles.button}>Submit</button>
       </form>
-      {error && <p style={styles.error}>{error}</p>}
       {message && <p style={styles.message}>{message}</p>}
     </div>
   );
@@ -177,13 +166,6 @@ const styles = {
     border: 'none',
     borderRadius: '4px',
     cursor: 'pointer',
-  },
-  error: {
-    marginTop: '20px',
-    padding: '10px',
-    backgroundColor: '#f8d7da',
-    color: '#721c24',
-    borderRadius: '4px',
   },
   message: {
     marginTop: '20px',
