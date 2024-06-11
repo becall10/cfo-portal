@@ -129,11 +129,15 @@ const Report = () => {
         return newRow;
       });
       return (
-        <div>
-          <h2>Original File</h2>
-          {renderTable(data.slice(1), data[0])}
-          <h2>New File</h2>
-          {renderTable(newData, requiredColumns)}
+        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+          <div style={{ width: '48%' }}>
+            <h2>Original File</h2>
+            {renderTable(data.slice(1), data[0])}
+          </div>
+          <div style={{ width: '48%' }}>
+            <h2>New File</h2>
+            {renderTable(newData, requiredColumns)}
+          </div>
         </div>
       );
     } else {
