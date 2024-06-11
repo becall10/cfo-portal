@@ -48,7 +48,7 @@ const Report = () => {
   const { getRootProps, getInputProps } = useDropzone({ onDrop });
 
   const handleDownload = () => {
-    const updatedData = data.map(row => {
+    const updatedData = data.slice(1).map(row => {
       const newRow = {};
       requiredColumns.forEach(col => {
         if (col === 'Category') {
@@ -81,20 +81,16 @@ const Report = () => {
     <table>
       <thead>
         <tr>
-          {columns.map((col) => (
-            <th key={col}>{col}</th>
+          {columns.map((col, index) => (
+            <th key={index}>{col}</th>
           ))}
         </tr>
       </thead>
       <tbody>
         {data.map((row, index) => (
           <tr key={index}>
-            {columns.map((col) => (
-              <td key={col}>
-                {col === 'Category'
-                  ? 'UDA Certifications'
-                  : row[columnMappings[col.replace(/\//g, '')]] || ''}
-              </td>
+            {row.map((cell, cellIndex) => (
+              <td key={cellIndex}>{cell}</td>
             ))}
           </tr>
         ))}
@@ -104,9 +100,9 @@ const Report = () => {
 
   const renderContent = () => {
     if (viewMode === 'original') {
-      return renderTable(data, data[0]);
+      return renderTable(data.slice(1), data[0]);
     } else if (viewMode === 'new') {
-      const newData = data.map(row => {
+      const newData = data.slice(1).map(row => {
         const newRow = {};
         requiredColumns.forEach(col => {
           if (col === 'Category') {
@@ -121,7 +117,7 @@ const Report = () => {
       });
       return renderTable(newData, requiredColumns);
     } else if (viewMode === 'compare') {
-      const newData = data.map(row => {
+      const newData = data.slice(1).map(row => {
         const newRow = {};
         requiredColumns.forEach(col => {
           if (col === 'Category') {
@@ -137,7 +133,7 @@ const Report = () => {
       return (
         <div>
           <h2>Original File</h2>
-          {renderTable(data, data[0])}
+          {renderTable(data.slice(1), data[0])}
           <h2>New File</h2>
           {renderTable(newData, requiredColumns)}
         </div>
