@@ -36,6 +36,10 @@ const ClientUpdate = () => {
     }, 3000);
   };
 
+  const clearMessage = () => {
+    setMessage('');
+  };
+
   return (
     <div style={styles.container}>
       <h1 style={styles.heading}>Client Update</h1>
@@ -47,6 +51,7 @@ const ClientUpdate = () => {
               type="text"
               value={category}
               onChange={(e) => setCategory(e.target.value)}
+              onFocus={clearMessage}
               style={styles.input}
             />
           </label>
@@ -58,6 +63,7 @@ const ClientUpdate = () => {
               type="text"
               value={directReport}
               onChange={(e) => setDirectReport(e.target.value)}
+              onFocus={clearMessage}
               style={styles.input}
             />
           </label>
@@ -69,6 +75,7 @@ const ClientUpdate = () => {
               type="text"
               value={manager}
               onChange={(e) => setManager(e.target.value)}
+              onFocus={clearMessage}
               style={styles.input}
             />
           </label>
@@ -80,6 +87,7 @@ const ClientUpdate = () => {
               type="text"
               value={employee}
               onChange={(e) => setEmployee(e.target.value)}
+              onFocus={clearMessage}
               style={styles.input}
             />
           </label>
@@ -91,6 +99,7 @@ const ClientUpdate = () => {
               type="text"
               value={id}
               onChange={(e) => setId(e.target.value)}
+              onFocus={clearMessage}
               style={styles.input}
             />
           </label>
@@ -102,6 +111,7 @@ const ClientUpdate = () => {
               type="text"
               value={nameDescription}
               onChange={(e) => setNameDescription(e.target.value)}
+              onFocus={clearMessage}
               style={styles.input}
             />
           </label>
@@ -113,6 +123,7 @@ const ClientUpdate = () => {
               type="text"
               value={status}
               onChange={(e) => setStatus(e.target.value)}
+              onFocus={clearMessage}
               style={styles.input}
             />
           </label>
