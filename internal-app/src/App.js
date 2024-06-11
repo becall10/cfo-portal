@@ -87,10 +87,10 @@ const Report = () => {
         </tr>
       </thead>
       <tbody>
-        {data.map((row, index) => (
-          <tr key={index}>
-            {row.map((cell, cellIndex) => (
-              <td key={cellIndex}>{cell}</td>
+        {data.map((row, rowIndex) => (
+          <tr key={rowIndex}>
+            {columns.map((col, colIndex) => (
+              <td key={colIndex}>{row[colIndex]}</td>
             ))}
           </tr>
         ))}
@@ -103,14 +103,13 @@ const Report = () => {
       return renderTable(data.slice(1), data[0]);
     } else if (viewMode === 'new') {
       const newData = data.slice(1).map(row => {
-        const newRow = {};
-        requiredColumns.forEach(col => {
+        const newRow = requiredColumns.map(col => {
           if (col === 'Category') {
-            newRow[col] = 'UDA Certifications';
+            return 'UDA Certifications';
           } else if (columnMappings[col.replace(/\//g, '')] !== undefined) {
-            newRow[col] = row[columnMappings[col.replace(/\//g, '')]] || '';
+            return row[columnMappings[col.replace(/\//g, '')]] || '';
           } else {
-            newRow[col] = '';
+            return '';
           }
         });
         return newRow;
@@ -118,14 +117,13 @@ const Report = () => {
       return renderTable(newData, requiredColumns);
     } else if (viewMode === 'compare') {
       const newData = data.slice(1).map(row => {
-        const newRow = {};
-        requiredColumns.forEach(col => {
+        const newRow = requiredColumns.map(col => {
           if (col === 'Category') {
-            newRow[col] = 'UDA Certifications';
+            return 'UDA Certifications';
           } else if (columnMappings[col.replace(/\//g, '')] !== undefined) {
-            newRow[col] = row[columnMappings[col.replace(/\//g, '')]] || '';
+            return row[columnMappings[col.replace(/\//g, '')]] || '';
           } else {
-            newRow[col] = '';
+            return '';
           }
         });
         return newRow;
