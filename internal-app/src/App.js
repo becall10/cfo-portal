@@ -75,6 +75,9 @@ const Report = () => {
 
   const handleSendEmail = () => {
     setEmailSent(true);
+    setData([]);
+    setUploadComplete(false);
+    setViewMode(null);
   };
 
   const handleClose = () => {
@@ -108,7 +111,9 @@ const Report = () => {
   );
 
   const renderContent = () => {
-    if (viewMode === 'original') {
+    if (emailSent) {
+      return <p>Email has been sent.</p>;
+    } else if (viewMode === 'original') {
       return renderTable(data.slice(1), data[0]);
     } else if (viewMode === 'new') {
       const newData = data.slice(1).map(row => {
@@ -181,10 +186,10 @@ const Report = () => {
           <button onClick={handleSendEmail} style={{ margin: '10px', padding: '5px 10px', cursor: 'pointer' }}>
             Send Email
           </button>
-          {emailSent && <p>Email has been sent.</p>}
           {renderContent()}
         </div>
       )}
+      {emailSent && <p>Email has been sent.</p>}
     </div>
   );
 };
