@@ -5,7 +5,8 @@ import { saveAs } from 'file-saver';
 
 const Report = () => {
   const [data, setData] = useState([]);
-  const [viewMode, setViewMode] = useState('original'); // 'original' or 'new'
+  const [viewMode, setViewMode] = useState(null); // 'original', 'new', 'compare', or null
+  const [uploadComplete, setUploadComplete] = useState(false);
 
   const requiredColumns = [
     'Category',
@@ -38,6 +39,8 @@ const Report = () => {
       const worksheet = workbook.Sheets[sheetName];
       const json = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
       setData(json);
+      setUploadComplete(true);
+      setViewMode(null);
     };
     reader.readAsArrayBuffer(file);
   }, []);
@@ -70,6 +73,8 @@ const Report = () => {
 
   const handleClose = () => {
     setData([]);
+    setUploadComplete(false);
+    setViewMode(null);
   };
 
   const renderTable = (data, columns) => (
@@ -97,6 +102,51 @@ const Report = () => {
     </table>
   );
 
+  const renderContent = () => {
+    if (viewMode === 'original') {
+      return renderTable(data, data[0]);
+    } else if (viewMode === 'new') {
+      const newData = data.map(row => {
+        const newRow = {};
+        requiredColumns.forEach(col => {
+          if (col === 'Category') {
+            newRow[col] = 'UDA Certifications';
+          } else if (columnMappings[col.replace(/\//g, '')] !== undefined) {
+            newRow[col] = row[columnMappings[col.replace(/\//g, '')]] || '';
+          } else {
+            newRow[col] = '';
+          }
+        });
+        return newRow;
+      });
+      return renderTable(newData, requiredColumns);
+    } else if (viewMode === 'compare') {
+      return (
+        <div>
+          <h2>Original File</h2>
+          {renderTable(data, data[0])}
+          <h2>New File</h2>
+          const newData = data.map(row => {
+            const newRow = {};
+            requiredColumns.forEach(col => {
+              if (col === 'Category') {
+                newRow[col] = 'UDA Certifications';
+              } else if (columnMappings[col.replace(/\//g, '')] !== undefined) {
+                newRow[col] = row[columnMappings[col.replace(/\//g, '')]] || '';
+              } else {
+                newRow[col] = '';
+              }
+            });
+            return newRow;
+          });
+          {renderTable(newData, requiredColumns)}
+        </div>
+      );
+    } else {
+      return <p>The file upload is complete and the new file has been generated.</p>;
+    }
+  };
+
   return (
     <div>
       <h1>Upload Report</h1>
@@ -104,7 +154,7 @@ const Report = () => {
         <input {...getInputProps()} />
         <p>Drag 'n' drop an Excel file here, or click to select one</p>
       </div>
-      {data.length > 0 && (
+      {uploadComplete && (
         <div>
           <button onClick={handleClose} style={{ margin: '10px', padding: '5px 10px', cursor: 'pointer' }}>
             Close
@@ -115,20 +165,13 @@ const Report = () => {
           <button onClick={() => setViewMode('new')} style={{ margin: '10px', padding: '5px 10px', cursor: 'pointer' }}>
             View New File
           </button>
+          <button onClick={() => setViewMode('compare')} style={{ margin: '10px', padding: '5px 10px', cursor: 'pointer' }}>
+            Compare Files
+          </button>
           <button onClick={handleDownload} style={{ margin: '10px', padding: '5px 10px', cursor: 'pointer' }}>
             Download Filtered Data
           </button>
-          {viewMode === 'original' && renderTable(data, data[0])}
-          {viewMode === 'new' && renderTable(data.map(row => requiredColumns.reduce((acc, col) => {
-            if (col === 'Category') {
-              acc[col] = 'UDA Certifications';
-            } else if (columnMappings[col.replace(/\//g, '')] !== undefined) {
-              acc[col] = row[columnMappings[col.replace(/\//g, '')]] || '';
-            } else {
-              acc[col] = '';
-            }
-            return acc;
-          }, {})), requiredColumns)}
+          {renderContent()}
         </div>
       )}
     </div>
