@@ -78,24 +78,26 @@ const Report = () => {
   };
 
   const renderTable = (data, columns) => (
-    <table>
-      <thead>
-        <tr>
-          {columns.map((col, index) => (
-            <th key={index}>{col}</th>
-          ))}
-        </tr>
-      </thead>
-      <tbody>
-        {data.map((row, rowIndex) => (
-          <tr key={rowIndex}>
-            {columns.map((col, colIndex) => (
-              <td key={colIndex}>{row[colIndex]}</td>
+    <div style={{ overflowX: 'auto' }}>
+      <table>
+        <thead>
+          <tr>
+            {columns.map((col, index) => (
+              <th key={index}>{col}</th>
             ))}
           </tr>
-        ))}
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          {data.map((row, rowIndex) => (
+            <tr key={rowIndex}>
+              {columns.map((col, colIndex) => (
+                <td key={colIndex}>{row[colIndex]}</td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
 
   const renderContent = () => {
@@ -129,12 +131,12 @@ const Report = () => {
         return newRow;
       });
       return (
-        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-          <div style={{ width: '48%' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', gap: '20px' }}>
+          <div style={{ width: '48%', overflowX: 'auto' }}>
             <h2>Original File</h2>
             {renderTable(data.slice(1), data[0])}
           </div>
-          <div style={{ width: '48%' }}>
+          <div style={{ width: '48%', overflowX: 'auto' }}>
             <h2>New File</h2>
             {renderTable(newData, requiredColumns)}
           </div>
