@@ -1,9 +1,32 @@
 import React, { useCallback, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import * as XLSX from 'xlsx';
+import { saveAs } from 'file-saver';
 
 const Report = () => {
   const [data, setData] = useState([]);
+  const [displayFilteredData, setDisplayFilteredData] = useState(false);
+
+  const requiredColumns = [
+    'Category',
+    'Direct Report',
+    'Manager',
+    'Employee',
+    'ID',
+    'Name/Description',
+    'Target Date',
+    'Status',
+    'Compliance',
+  ];
+
+  const columnMappings = {
+    ID: 0, // 1st column maps to ID
+    NameDescription: 2, // 3rd column maps to Name/Description
+    TargetDate: 6, // 7th column maps to Target Date
+    Employee: 8, // 9th column maps to Employee
+    Manager: 9, // 10th column maps to Manager
+    DirectReport: 10, // 11th column maps to Direct Report
+  };
 
   const onDrop = useCallback((acceptedFiles) => {
     const file = acceptedFiles[0];
@@ -13,16 +36,42 @@ const Report = () => {
       const workbook = XLSX.read(data, { type: 'array' });
       const sheetName = workbook.SheetNames[0];
       const worksheet = workbook.Sheets[sheetName];
-      const json = XLSX.utils.sheet_to_json(worksheet);
+      const json = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
       setData(json);
+      setDisplayFilteredData(true);
     };
     reader.readAsArrayBuffer(file);
   }, []);
 
   const { getRootProps, getInputProps } = useDropzone({ onDrop });
 
+  const handleDownload = () => {
+    const updatedData = data.map(row => {
+      const newRow = {};
+      requiredColumns.forEach(col => {
+        if (col === 'Category') {
+          newRow[col] = 'UDA Certifications';
+        } else if (columnMappings[col.replace(/\//g, '')] !== undefined) {
+          newRow[col] = row[columnMappings[col.replace(/\//g, '')]] || '';
+        } else {
+          newRow[col] = '';
+        }
+      });
+      return newRow;
+    });
+
+    const worksheet = XLSX.utils.json_to_sheet(updatedData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'FilteredData');
+
+    const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+    const blob = new Blob([excelBuffer], { type: 'application/octet-stream' });
+    saveAs(blob, 'filtered_data.xlsx');
+  };
+
   const handleClose = () => {
     setData([]);
+    setDisplayFilteredData(false);
   };
 
   return (
@@ -37,19 +86,26 @@ const Report = () => {
           <button onClick={handleClose} style={{ margin: '10px', padding: '5px 10px', cursor: 'pointer' }}>
             Close
           </button>
+          <button onClick={handleDownload} style={{ margin: '10px', padding: '5px 10px', cursor: 'pointer' }}>
+            Download Filtered Data
+          </button>
           <table>
             <thead>
               <tr>
-                {Object.keys(data[0]).map((key) => (
-                  <th key={key}>{key}</th>
+                {requiredColumns.map((col) => (
+                  <th key={col}>{col}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {data.map((row, index) => (
                 <tr key={index}>
-                  {Object.values(row).map((value, i) => (
-                    <td key={i}>{value}</td>
+                  {requiredColumns.map((col) => (
+                    <td key={col}>
+                      {col === 'Category'
+                        ? 'UDA Certifications'
+                        : row[columnMappings[col.replace(/\//g, '')]] || ''}
+                    </td>
                   ))}
                 </tr>
               ))}
