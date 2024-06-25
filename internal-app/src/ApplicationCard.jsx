@@ -51,6 +51,8 @@ const Report = () => {
     RelatedComplianceAreas: 12
   };
 
+  const dateColumns = ['As of Date', 'ActualStartDate', 'ActualEndDate', 'CreateDate'];
+
   const excelDateToJSDate = (serial) => {
     const utc_days = Math.floor(serial - 25569);
     const utc_value = utc_days * 86400;
@@ -87,16 +89,18 @@ const Report = () => {
       const worksheet = workbook.Sheets[sheetName];
       const json = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
 
-      // Convert "As of Date" column to string format
+      // Convert date columns to string format
       const header = json[0];
-      const asOfDateIndex = header.indexOf('As of Date');
-      if (asOfDateIndex !== -1) {
-        json.forEach(row => {
-          if (row[asOfDateIndex] != null && typeof row[asOfDateIndex] === 'number') {
-            row[asOfDateIndex] = formatDate(excelDateToJSDate(row[asOfDateIndex]));
-          }
-        });
-      }
+      dateColumns.forEach(dateColumn => {
+        const dateIndex = header.indexOf(dateColumn);
+        if (dateIndex !== -1) {
+          json.forEach(row => {
+            if (row[dateIndex] != null && typeof row[dateIndex] === 'number') {
+              row[dateIndex] = formatDate(excelDateToJSDate(row[dateIndex]));
+            }
+          });
+        }
+      });
 
       console.log('New file data:', json); // Debugging step
       setData(json);
