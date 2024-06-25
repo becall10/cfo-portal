@@ -1,4 +1,3 @@
-//
 import React, { useCallback, useState, useEffect } from 'react';
 import { useDropzone } from 'react-dropzone';
 import * as XLSX from 'xlsx';
@@ -8,7 +7,11 @@ const Report = () => {
   const [data, setData] = useState([]);
   const [newData, setNewData] = useState([]);
   const [masterData, setMasterData] = useState([]);
-  const [viewMode, setViewMode] = useState(null); // 'original', 'new', 'compare', 'master', or null
+  const [comparisonData, setComparisonData] = useState([]);
+  const [removedData, setRemovedData] = useState([]);
+  const [addedData, setAddedData] = useState([]);
+  const [nonKeyCount, setNonKeyCount] = useState(0);
+  const [viewMode, setViewMode] = useState(null); // 'original', 'new', 'compare', 'master', 'nonKey', 'removed', 'added', or null
   const [uploadComplete, setUploadComplete] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
   const [masterFileUploaded, setMasterFileUploaded] = useState(false);
@@ -80,7 +83,6 @@ const Report = () => {
             if (typeof row[dateIndex] === 'number') {
               row[dateIndex] = formatDate(excelDateToJSDate(row[dateIndex]));
             } else if (typeof row[dateIndex] === 'string') {
-              // Ensure the date is in 00/00/00 format
               const dateParts = row[dateIndex].split('/');
               if (dateParts.length === 3 && dateParts[2].length === 4) {
                 row[dateIndex] = `${dateParts[0].padStart(2, '0')}/${dateParts[1].padStart(2, '0')}/${dateParts[2].substring(2)}`;
@@ -173,6 +175,93 @@ const Report = () => {
     setEmailSent(false);
   };
 
+  const compareFiles = () => {
+    if (data.length === 0 || masterData.length === 0) {
+      return;
+    }
+
+    const header = data[0];
+    const masterHeader = masterData[0];
+    const comparisons = [];
+
+    const maxLength = Math.max(data.length, masterData.length);
+
+    for (let i = 1; i < maxLength; i++) {
+      const row = data[i] || [];
+      const masterRow = masterData[i] || [];
+      const comparisonRow = header.map((col, index) => {
+        const cellValue = row[index] || '';
+        const masterCellValue = masterRow[index] || '';
+        return cellValue === masterCellValue ? cellValue : `${cellValue} (master: ${masterCellValue})`;
+      });
+      comparisons.push(comparisonRow);
+    }
+
+    setComparisonData([header, ...comparisons]);
+    setViewMode('compare');
+  };
+
+  const checkNonKeyValues = () => {
+    if (data.length === 0) {
+      return;
+    }
+
+    const keyIndex = data[0].indexOf('Key');
+    if (keyIndex === -1) {
+      return;
+    }
+
+    const nonKeyCount = data.slice(1).reduce((count, row) => {
+      if (row[keyIndex] === 'Non-key') {
+        return count + 1;
+      }
+      return count;
+    }, 0);
+
+    setNonKeyCount(nonKeyCount);
+    setViewMode('nonKey');
+  };
+
+  const checkRemovedRows = () => {
+    if (data.length === 0 || masterData.length === 0) {
+      return;
+    }
+
+    const header = data[0];
+    const masterKeyIndex = masterData[0].indexOf('Key');
+    const dataKeyIndex = data[0].indexOf('Key');
+
+    if (masterKeyIndex === -1 || dataKeyIndex === -1) {
+      return;
+    }
+
+    const masterKeys = new Set(masterData.slice(1).map(row => row[masterKeyIndex]));
+    const removedRows = data.slice(1).filter(row => !masterKeys.has(row[dataKeyIndex]));
+
+    setRemovedData([header, ...removedRows]);
+    setViewMode('removed');
+  };
+
+  const checkAddedRows = () => {
+    if (data.length === 0 || masterData.length === 0) {
+      return;
+    }
+
+    const header = data[0];
+    const masterKeyIndex = masterData[0].indexOf('Key');
+    const dataKeyIndex = data[0].indexOf('Key');
+
+    if (masterKeyIndex === -1 || dataKeyIndex === -1) {
+      return;
+    }
+
+    const dataKeys = new Set(data.slice(1).map(row => row[dataKeyIndex]));
+    const addedRows = masterData.slice(1).filter(row => !dataKeys.has(row[masterKeyIndex]));
+
+    setAddedData([header, ...addedRows]);
+    setViewMode('added');
+  };
+
   const renderTable = (data, columns) => (
     <div style={{ overflowX: 'auto' }}>
       <table>
@@ -201,6 +290,9 @@ const Report = () => {
     console.log('Current data:', data); // Debugging step
     console.log('Current newData:', newData); // Debugging step
     console.log('Current masterData:', masterData); // Debugging step
+    console.log('Current comparisonData:', comparisonData); // Debugging step
+    console.log('Current removedData:', removedData); // Debugging step
+    console.log('Current addedData:', addedData); // Debugging step
 
     const totalRecords = data.length - 1; // Subtract header row
     const totalMasterRecords = masterData.length - 1; // Subtract header row
@@ -237,6 +329,22 @@ const Report = () => {
           {renderTable(masterData.slice(1), masterData[0])}
         </div>
       );
+    } else if (viewMode === 'nonKey') {
+      return <p>The total number of non keys are: {nonKeyCount}</p>;
+    } else if (viewMode === 'removed') {
+      return (
+        <div>
+          <p>The total number of removed rows are: {removedData.length - 1}</p>
+          {renderTable(removedData.slice(1), removedData[0])}
+        </div>
+      );
+    } else if (viewMode === 'added') {
+      return (
+        <div>
+          <p>The total number of added rows are: {addedData.length - 1}</p>
+          {renderTable(addedData.slice(1), addedData[0])}
+        </div>
+      );
     } else {
       return <p>The file upload is complete and the new file has been generated.</p>;
     }
@@ -264,7 +372,7 @@ const Report = () => {
           <button onClick={() => setViewMode('new')} style={{ margin: '10px', padding: '5px 10px', cursor: 'pointer' }}>
             View New File
           </button>
-          <button onClick={() => setViewMode('compare')} style={{ margin: '10px', padding: '5px 10px', cursor: 'pointer' }}>
+          <button onClick={compareFiles} style={{ margin: '10px', padding: '5px 10px', cursor: 'pointer' }}>
             Compare Files
           </button>
           <button onClick={handleDownload} style={{ margin: '10px', padding: '5px 10px', cursor: 'pointer' }}>
@@ -272,6 +380,15 @@ const Report = () => {
           </button>
           <button onClick={handleSendEmail} style={{ margin: '10px', padding: '5px 10px', cursor: 'pointer' }}>
             Send Email
+          </button>
+          <button onClick={checkNonKeyValues} style={{ margin: '10px', padding: '5px 10px', cursor: 'pointer' }}>
+            Check Non-key Values
+          </button>
+          <button onClick={checkRemovedRows} style={{ margin: '10px', padding: '5px 10px', cursor: 'pointer' }}>
+            Check Removed Rows
+          </button>
+          <button onClick={checkAddedRows} style={{ margin: '10px', padding: '5px 10px', cursor: 'pointer' }}>
+            Check Added Rows
           </button>
           {renderContent()}
         </div>
