@@ -53,32 +53,6 @@ const Report = () => {
 
   const dateColumns = ['As of Date', 'ActualStartDate', 'ActualEndDate', 'CreateDate'];
 
-  const excelDateToJSDate = (serial) => {
-    const utc_days = Math.floor(serial - 25569);
-    const utc_value = utc_days * 86400;
-    const date_info = new Date(utc_value * 1000);
-
-    const fractional_day = serial - Math.floor(serial) + 0.0000001;
-
-    let total_seconds = Math.floor(86400 * fractional_day);
-
-    const seconds = total_seconds % 60;
-    total_seconds -= seconds;
-
-    const hours = Math.floor(total_seconds / (60 * 60));
-    const minutes = Math.floor(total_seconds / 60) % 60;
-
-    return new Date(date_info.getFullYear(), date_info.getMonth(), date_info.getDate(), hours, minutes, seconds);
-  };
-
-  const formatDate = (date) => {
-    const d = new Date(date);
-    const day = String(d.getDate()).padStart(2, '0');
-    const month = String(d.getMonth() + 1).padStart(2, '0');
-    const year = String(d.getFullYear()).substring(2);
-    return `${month}/${day}/${year}`;
-  };
-
   const onDrop = useCallback((acceptedFiles) => {
     const file = acceptedFiles[0];
     const reader = new FileReader();
@@ -88,25 +62,6 @@ const Report = () => {
       const sheetName = workbook.SheetNames[0];
       const worksheet = workbook.Sheets[sheetName];
       const json = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-
-      // Convert date columns to string format
-      const header = json[0];
-      dateColumns.forEach(dateColumn => {
-        const dateIndex = header.indexOf(dateColumn);
-        if (dateIndex !== -1) {
-          json.forEach(row => {
-            if (row[dateIndex] != null && typeof row[dateIndex] === 'number') {
-              row[dateIndex] = formatDate(excelDateToJSDate(row[dateIndex]));
-            } else if (row[dateIndex] != null && typeof row[dateIndex] === 'string') {
-              // Ensure the date is in 00/00/00 format
-              const dateParts = row[dateIndex].split('/');
-              if (dateParts.length === 3 && dateParts[2].length === 4) {
-                row[dateIndex] = `${dateParts[0].padStart(2, '0')}/${dateParts[1].padStart(2, '0')}/${dateParts[2].substring(2)}`;
-              }
-            }
-          });
-        }
-      });
 
       console.log('New file data:', json); // Debugging step
       setData(json);
