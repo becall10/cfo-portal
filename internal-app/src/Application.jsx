@@ -51,7 +51,7 @@ const Report = () => {
     RelatedComplianceAreas: 12
   };
 
-  const dateColumns = ['As of Date', 'ActualStartDate', 'ActualEndDate', 'CreateDate'];
+  const dateColumns = ['As of Date', 'Actual Start Date', 'Actual End Date', 'Create Date'];
 
   const excelDateToJSDate = (serial) => {
     const utc_days = Math.floor(serial - 25569);
