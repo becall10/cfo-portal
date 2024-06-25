@@ -106,8 +106,13 @@ const Report = () => {
   };
 
   const formatAsOfDate = (dateString) => {
-    const parts = dateString.split('-');
-    return `${parts[1]}/${parts[2]}/${parts[0].substring(2)}`;
+    if (typeof dateString === 'string') {
+      const parts = dateString.split('-');
+      if (parts.length === 3) {
+        return `${parts[1]}/${parts[2]}/${parts[0].substring(2)}`;
+      }
+    }
+    return dateString; // Return the original value if it's not a string or not in the expected format
   };
 
   const renderTable = (data, columns, asOfDateIndex) => (
@@ -153,7 +158,7 @@ const Report = () => {
         });
         return newRow;
       });
-      return renderTable(newData, requiredColumns, asOfDateIndex);
+      return renderTable(newData, requiredColumns);
     } else if (viewMode === 'compare') {
       const newData = data.slice(1).map(row => {
         const newRow = requiredColumns.map(col => {
@@ -173,7 +178,7 @@ const Report = () => {
           </div>
           <div style={{ width: '48%', overflowX: 'auto' }}>
             <h2>New File</h2>
-            {renderTable(newData, requiredColumns, asOfDateIndex)}
+            {renderTable(newData, requiredColumns)}
           </div>
         </div>
       );
