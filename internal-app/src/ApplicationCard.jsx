@@ -60,6 +60,18 @@ const Report = () => {
       const sheetName = workbook.SheetNames[0];
       const worksheet = workbook.Sheets[sheetName];
       const json = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+
+      // Convert "As of Date" column to string format
+      const header = json[0];
+      const asOfDateIndex = header.indexOf('As of Date');
+      if (asOfDateIndex !== -1) {
+        json.forEach(row => {
+          if (row[asOfDateIndex] != null && typeof row[asOfDateIndex] !== 'string') {
+            row[asOfDateIndex] = String(row[asOfDateIndex]);
+          }
+        });
+      }
+
       console.log('New file data:', json); // Debugging step
       setData(json);
 
@@ -109,17 +121,7 @@ const Report = () => {
     setEmailSent(false);
   };
 
-  const formatAsOfDate = (dateString) => {
-    if (typeof dateString === 'string') {
-      const parts = dateString.split('-');
-      if (parts.length === 3) {
-        return `${parts[1]}/${parts[2]}/${parts[0].substring(2)}`;
-      }
-    }
-    return dateString; // Return the original value if it's not a string or not in the expected format
-  };
-
-  const renderTable = (data, columns, asOfDateIndex = -1) => (
+  const renderTable = (data, columns) => (
     <div style={{ overflowX: 'auto' }}>
       <table>
         <thead>
@@ -133,9 +135,7 @@ const Report = () => {
           {data.map((row, rowIndex) => (
             <tr key={rowIndex}>
               {columns.map((col, colIndex) => (
-                <td key={colIndex}>
-                  {colIndex === asOfDateIndex ? formatAsOfDate(row[colIndex]) : row[colIndex]}
-                </td>
+                <td key={colIndex}>{row[colIndex]}</td>
               ))}
             </tr>
           ))}
@@ -153,7 +153,7 @@ const Report = () => {
     if (emailSent) {
       return <p>Email has been sent.</p>;
     } else if (viewMode === 'original') {
-      return renderTable(data.slice(1), data[0], asOfDateIndex);
+      return renderTable(data.slice(1), data[0]);
     } else if (viewMode === 'new') {
       return renderTable(newData.slice(1), newData[0]);
     } else if (viewMode === 'compare') {
@@ -161,7 +161,7 @@ const Report = () => {
         <div style={{ display: 'flex', justifyContent: 'space-between', gap: '20px' }}>
           <div style={{ width: '48%', overflowX: 'auto' }}>
             <h2>Original File</h2>
-            {renderTable(data.slice(1), data[0], asOfDateIndex)}
+            {renderTable(data.slice(1), data[0])}
           </div>
           <div style={{ width: '48%', overflowX: 'auto' }}>
             <h2>New File</h2>
