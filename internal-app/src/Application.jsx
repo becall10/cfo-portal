@@ -6,9 +6,11 @@ import { saveAs } from 'file-saver';
 const Report = () => {
   const [data, setData] = useState([]);
   const [newData, setNewData] = useState([]);
-  const [viewMode, setViewMode] = useState(null); // 'original', 'new', 'compare', or null
+  const [masterData, setMasterData] = useState([]);
+  const [viewMode, setViewMode] = useState(null); // 'original', 'new', 'compare', 'master', or null
   const [uploadComplete, setUploadComplete] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
+  const [masterFileUploaded, setMasterFileUploaded] = useState(false);
 
   const requiredColumns = [
     'Snow Control',
@@ -90,7 +92,7 @@ const Report = () => {
     });
   };
 
-  const onDrop = useCallback((acceptedFiles) => {
+  const onDrop = useCallback((acceptedFiles, isMaster = false) => {
     const file = acceptedFiles[0];
     const reader = new FileReader();
     reader.onload = (e) => {
@@ -104,33 +106,46 @@ const Report = () => {
       processDateColumns(json, header);
 
       console.log('New file data:', json); // Debugging step
-      setData(json);
 
-      // Transform data for new view
-      const transformedData = json.slice(1).map(row => {
-        const newRow = requiredColumns.map(col => {
-          if (columnMappings[col.replace(/\s/g, '')] !== undefined) {
-            return row[columnMappings[col.replace(/\s/g, '')]] || '';
-          } else {
-            return '';
-          }
+      if (isMaster) {
+        setMasterData(json);
+        setMasterFileUploaded(true);
+      } else {
+        setData(json);
+
+        // Transform data for new view
+        const transformedData = json.slice(1).map(row => {
+          const newRow = requiredColumns.map(col => {
+            if (columnMappings[col.replace(/\s/g, '')] !== undefined) {
+              return row[columnMappings[col.replace(/\s/g, '')]] || '';
+            } else {
+              return '';
+            }
+          });
+          return newRow;
         });
-        return newRow;
-      });
-      setNewData([requiredColumns, ...transformedData]);
-      setUploadComplete(true);
-      setViewMode(null);
-      setEmailSent(false);
+        setNewData([requiredColumns, ...transformedData]);
+        setUploadComplete(true);
+        setViewMode(null);
+        setEmailSent(false);
+      }
     };
     reader.readAsArrayBuffer(file);
   }, []);
 
-  const { getRootProps, getInputProps } = useDropzone({ onDrop });
+  const { getRootProps, getInputProps } = useDropzone({
+    onDrop: (acceptedFiles) => onDrop(acceptedFiles)
+  });
+
+  const { getRootProps: getMasterRootProps, getInputProps: getMasterInputProps } = useDropzone({
+    onDrop: (acceptedFiles) => onDrop(acceptedFiles, true)
+  });
 
   useEffect(() => {
     console.log('Data state updated:', data); // Debugging step
     console.log('NewData state updated:', newData); // Debugging step
-  }, [data, newData]);
+    console.log('MasterData state updated:', masterData); // Debugging step
+  }, [data, newData, masterData]);
 
   const handleDownload = () => {
     const worksheet = XLSX.utils.json_to_sheet(newData.slice(1));
@@ -212,6 +227,13 @@ const Report = () => {
           </div>
         </div>
       );
+    } else if (viewMode === 'master') {
+      return (
+        <div>
+          <p>Master file has been uploaded successfully.</p>
+          {renderTable(masterData.slice(1), masterData[0])}
+        </div>
+      );
     } else {
       return <p>The file upload is complete and the new file has been generated.</p>;
     }
@@ -223,6 +245,10 @@ const Report = () => {
       <div {...getRootProps()} style={{ border: '2px dashed #007bff', padding: '20px', textAlign: 'center' }}>
         <input {...getInputProps()} />
         <p>Drag 'n' drop an Excel file here, or click to select one</p>
+      </div>
+      <div {...getMasterRootProps()} style={{ border: '2px dashed #28a745', padding: '20px', textAlign: 'center', marginTop: '20px' }}>
+        <input {...getMasterInputProps()} />
+        <p>Drag 'n' drop a Master file here, or click to select one</p>
       </div>
       {uploadComplete && (
         <div>
@@ -245,6 +271,13 @@ const Report = () => {
             Send Email
           </button>
           {renderContent()}
+        </div>
+      )}
+      {masterFileUploaded && (
+        <div>
+          <button onClick={() => setViewMode('master')} style={{ margin: '10px', padding: '5px 10px', cursor: 'pointer' }}>
+            View Master File
+          </button>
         </div>
       )}
       {emailSent && <p>Email has been sent.</p>}
