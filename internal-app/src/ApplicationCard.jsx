@@ -60,6 +60,7 @@ const Report = () => {
       const sheetName = workbook.SheetNames[0];
       const worksheet = workbook.Sheets[sheetName];
       const json = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+      console.log('New file data:', json); // Debugging step
       setData(json);
 
       // Transform data for new view
@@ -145,6 +146,9 @@ const Report = () => {
 
   const renderContent = () => {
     const asOfDateIndex = data[0]?.indexOf('As of Date');
+    console.log('View mode:', viewMode); // Debugging step
+    console.log('Current data:', data); // Debugging step
+    console.log('Current newData:', newData); // Debugging step
 
     if (emailSent) {
       return <p>Email has been sent.</p>;
