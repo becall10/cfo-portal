@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import { useDropzone } from 'react-dropzone';
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
@@ -51,6 +51,32 @@ const Report = () => {
     RelatedComplianceAreas: 12
   };
 
+  const excelDateToJSDate = (serial) => {
+    const utc_days = Math.floor(serial - 25569);
+    const utc_value = utc_days * 86400;
+    const date_info = new Date(utc_value * 1000);
+
+    const fractional_day = serial - Math.floor(serial) + 0.0000001;
+
+    let total_seconds = Math.floor(86400 * fractional_day);
+
+    const seconds = total_seconds % 60;
+    total_seconds -= seconds;
+
+    const hours = Math.floor(total_seconds / (60 * 60));
+    const minutes = Math.floor(total_seconds / 60) % 60;
+
+    return new Date(date_info.getFullYear(), date_info.getMonth(), date_info.getDate(), hours, minutes, seconds);
+  };
+
+  const formatDate = (date) => {
+    const d = new Date(date);
+    const day = String(d.getDate()).padStart(2, '0');
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const year = String(d.getFullYear()).substring(2);
+    return `${month}/${day}/${year}`;
+  };
+
   const onDrop = useCallback((acceptedFiles) => {
     const file = acceptedFiles[0];
     const reader = new FileReader();
@@ -66,8 +92,8 @@ const Report = () => {
       const asOfDateIndex = header.indexOf('As of Date');
       if (asOfDateIndex !== -1) {
         json.forEach(row => {
-          if (row[asOfDateIndex] != null && typeof row[asOfDateIndex] !== 'string') {
-            row[asOfDateIndex] = String(row[asOfDateIndex]);
+          if (row[asOfDateIndex] != null && typeof row[asOfDateIndex] === 'number') {
+            row[asOfDateIndex] = formatDate(excelDateToJSDate(row[asOfDateIndex]));
           }
         });
       }
@@ -95,6 +121,11 @@ const Report = () => {
   }, []);
 
   const { getRootProps, getInputProps } = useDropzone({ onDrop });
+
+  useEffect(() => {
+    console.log('Data state updated:', data); // Debugging step
+    console.log('NewData state updated:', newData); // Debugging step
+  }, [data, newData]);
 
   const handleDownload = () => {
     const worksheet = XLSX.utils.json_to_sheet(newData.slice(1));
@@ -145,7 +176,6 @@ const Report = () => {
   );
 
   const renderContent = () => {
-    const asOfDateIndex = data[0]?.indexOf('As of Date');
     console.log('View mode:', viewMode); // Debugging step
     console.log('Current data:', data); // Debugging step
     console.log('Current newData:', newData); // Debugging step
