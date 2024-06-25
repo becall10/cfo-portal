@@ -95,8 +95,16 @@ const Report = () => {
         const dateIndex = header.indexOf(dateColumn);
         if (dateIndex !== -1) {
           json.forEach(row => {
-            if (row[dateIndex] != null && typeof row[dateIndex] === 'number') {
-              row[dateIndex] = formatDate(excelDateToJSDate(row[dateIndex]));
+            if (row[dateIndex] != null) {
+              if (typeof row[dateIndex] === 'number') {
+                row[dateIndex] = formatDate(excelDateToJSDate(row[dateIndex]));
+              } else if (typeof row[dateIndex] === 'string') {
+                // Ensure the date is in 00/00/00 format
+                const dateParts = row[dateIndex].split('/');
+                if (dateParts.length === 3 && dateParts[2].length === 4) {
+                  row[dateIndex] = `${dateParts[0].padStart(2, '0')}/${dateParts[1].padStart(2, '0')}/${dateParts[2].substring(2)}`;
+                }
+              }
             }
           });
         }
