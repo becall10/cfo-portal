@@ -56,15 +56,16 @@ const Report = () => {
   const excelDateToJSDate = (serial) => {
     const utc_days = Math.floor(serial - 25569);
     const date_info = new Date(utc_days * 86400 * 1000);
-
-    return new Date(date_info.getFullYear(), date_info.getMonth(), date_info.getDate());
+    // Set to UTC midnight to avoid timezone issues
+    date_info.setUTCHours(0, 0, 0, 0);
+    return date_info;
   };
 
   const formatDate = (date) => {
     const d = new Date(date);
-    const day = String(d.getDate()).padStart(2, '0');
-    const month = String(d.getMonth() + 1).padStart(2, '0');
-    const year = String(d.getFullYear()).substring(2);
+    const day = String(d.getUTCDate()).padStart(2, '0');
+    const month = String(d.getUTCMonth() + 1).padStart(2, '0');
+    const year = String(d.getUTCFullYear()).substring(2);
     return `${month}/${day}/${year}`;
   };
 
