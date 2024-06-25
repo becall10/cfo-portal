@@ -199,8 +199,10 @@ const Report = () => {
     console.log('View mode:', viewMode); // Debugging step
     console.log('Current data:', data); // Debugging step
     console.log('Current newData:', newData); // Debugging step
+    console.log('Current masterData:', masterData); // Debugging step
 
     const totalRecords = data.length - 1; // Subtract header row
+    const totalMasterRecords = masterData.length - 1; // Subtract header row
 
     if (emailSent) {
       return <p>Email has been sent.</p>;
@@ -230,7 +232,7 @@ const Report = () => {
     } else if (viewMode === 'master') {
       return (
         <div>
-          <p>Master file has been uploaded successfully.</p>
+          <p>The total number of records in the master file are: {totalMasterRecords}</p>
           {renderTable(masterData.slice(1), masterData[0])}
         </div>
       );
