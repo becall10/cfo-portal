@@ -5,6 +5,7 @@ import { saveAs } from 'file-saver';
 
 const Report = () => {
   const [data, setData] = useState([]);
+  const [newData, setNewData] = useState([]);
   const [viewMode, setViewMode] = useState(null); // 'original', 'new', 'compare', or null
   const [uploadComplete, setUploadComplete] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
@@ -60,6 +61,19 @@ const Report = () => {
       const worksheet = workbook.Sheets[sheetName];
       const json = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
       setData(json);
+
+      // Transform data for new view
+      const transformedData = json.slice(1).map(row => {
+        const newRow = requiredColumns.map(col => {
+          if (columnMappings[col.replace(/\s/g, '')] !== undefined) {
+            return row[columnMappings[col.replace(/\s/g, '')]] || '';
+          } else {
+            return '';
+          }
+        });
+        return newRow;
+      });
+      setNewData([requiredColumns, ...transformedData]);
       setUploadComplete(true);
       setViewMode(null);
       setEmailSent(false);
@@ -70,19 +84,7 @@ const Report = () => {
   const { getRootProps, getInputProps } = useDropzone({ onDrop });
 
   const handleDownload = () => {
-    const updatedData = data.slice(1).map(row => {
-      const newRow = {};
-      requiredColumns.forEach(col => {
-        if (columnMappings[col.replace(/\s/g, '')] !== undefined) {
-          newRow[col] = row[columnMappings[col.replace(/\s/g, '')]] || '';
-        } else {
-          newRow[col] = '';
-        }
-      });
-      return newRow;
-    });
-
-    const worksheet = XLSX.utils.json_to_sheet(updatedData);
+    const worksheet = XLSX.utils.json_to_sheet(newData.slice(1));
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, 'FilteredData');
 
@@ -100,6 +102,7 @@ const Report = () => {
 
   const handleClose = () => {
     setData([]);
+    setNewData([]);
     setUploadComplete(false);
     setViewMode(null);
     setEmailSent(false);
@@ -115,7 +118,7 @@ const Report = () => {
     return dateString; // Return the original value if it's not a string or not in the expected format
   };
 
-  const renderTable = (data, columns, asOfDateIndex) => (
+  const renderTable = (data, columns, asOfDateIndex = -1) => (
     <div style={{ overflowX: 'auto' }}>
       <table>
         <thead>
@@ -148,28 +151,8 @@ const Report = () => {
     } else if (viewMode === 'original') {
       return renderTable(data.slice(1), data[0], asOfDateIndex);
     } else if (viewMode === 'new') {
-      const newData = data.slice(1).map(row => {
-        const newRow = requiredColumns.map(col => {
-          if (columnMappings[col.replace(/\s/g, '')] !== undefined) {
-            return row[columnMappings[col.replace(/\s/g, '')]] || '';
-          } else {
-            return '';
-          }
-        });
-        return newRow;
-      });
-      return renderTable(newData, requiredColumns);
+      return renderTable(newData.slice(1), newData[0]);
     } else if (viewMode === 'compare') {
-      const newData = data.slice(1).map(row => {
-        const newRow = requiredColumns.map(col => {
-          if (columnMappings[col.replace(/\s/g, '')] !== undefined) {
-            return row[columnMappings[col.replace(/\s/g, '')]] || '';
-          } else {
-            return '';
-          }
-        });
-        return newRow;
-      });
       return (
         <div style={{ display: 'flex', justifyContent: 'space-between', gap: '20px' }}>
           <div style={{ width: '48%', overflowX: 'auto' }}>
@@ -178,7 +161,7 @@ const Report = () => {
           </div>
           <div style={{ width: '48%', overflowX: 'auto' }}>
             <h2>New File</h2>
-            {renderTable(newData, requiredColumns)}
+            {renderTable(newData.slice(1), newData[0])}
           </div>
         </div>
       );
