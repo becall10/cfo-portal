@@ -105,7 +105,12 @@ const Report = () => {
     setEmailSent(false);
   };
 
-  const renderTable = (data, columns) => (
+  const formatAsOfDate = (dateString) => {
+    const parts = dateString.split('-');
+    return `${parts[1]}/${parts[2]}/${parts[0].substring(2)}`;
+  };
+
+  const renderTable = (data, columns, asOfDateIndex) => (
     <div style={{ overflowX: 'auto' }}>
       <table>
         <thead>
@@ -119,7 +124,9 @@ const Report = () => {
           {data.map((row, rowIndex) => (
             <tr key={rowIndex}>
               {columns.map((col, colIndex) => (
-                <td key={colIndex}>{row[colIndex]}</td>
+                <td key={colIndex}>
+                  {colIndex === asOfDateIndex ? formatAsOfDate(row[colIndex]) : row[colIndex]}
+                </td>
               ))}
             </tr>
           ))}
@@ -129,10 +136,12 @@ const Report = () => {
   );
 
   const renderContent = () => {
+    const asOfDateIndex = data[0]?.indexOf('As of Date');
+
     if (emailSent) {
       return <p>Email has been sent.</p>;
     } else if (viewMode === 'original') {
-      return renderTable(data.slice(1), data[0]);
+      return renderTable(data.slice(1), data[0], asOfDateIndex);
     } else if (viewMode === 'new') {
       const newData = data.slice(1).map(row => {
         const newRow = requiredColumns.map(col => {
@@ -144,7 +153,7 @@ const Report = () => {
         });
         return newRow;
       });
-      return renderTable(newData, requiredColumns);
+      return renderTable(newData, requiredColumns, asOfDateIndex);
     } else if (viewMode === 'compare') {
       const newData = data.slice(1).map(row => {
         const newRow = requiredColumns.map(col => {
@@ -160,11 +169,11 @@ const Report = () => {
         <div style={{ display: 'flex', justifyContent: 'space-between', gap: '20px' }}>
           <div style={{ width: '48%', overflowX: 'auto' }}>
             <h2>Original File</h2>
-            {renderTable(data.slice(1), data[0])}
+            {renderTable(data.slice(1), data[0], asOfDateIndex)}
           </div>
           <div style={{ width: '48%', overflowX: 'auto' }}>
             <h2>New File</h2>
-            {renderTable(newData, requiredColumns)}
+            {renderTable(newData, requiredColumns, asOfDateIndex)}
           </div>
         </div>
       );
