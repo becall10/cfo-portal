@@ -185,10 +185,17 @@ const Report = () => {
     console.log('Current data:', data); // Debugging step
     console.log('Current newData:', newData); // Debugging step
 
+    const totalRecords = data.length - 1; // Subtract header row
+
     if (emailSent) {
       return <p>Email has been sent.</p>;
     } else if (viewMode === 'original') {
-      return renderTable(data.slice(1), data[0]);
+      return (
+        <div>
+          <p>The total number of records are: {totalRecords}</p>
+          {renderTable(data.slice(1), data[0])}
+        </div>
+      );
     } else if (viewMode === 'new') {
       return renderTable(newData.slice(1), newData[0]);
     } else if (viewMode === 'compare') {
@@ -196,6 +203,7 @@ const Report = () => {
         <div style={{ display: 'flex', justifyContent: 'space-between', gap: '20px' }}>
           <div style={{ width: '48%', overflowX: 'auto' }}>
             <h2>Original File</h2>
+            <p>The total number of records are: {totalRecords}</p>
             {renderTable(data.slice(1), data[0])}
           </div>
           <div style={{ width: '48%', overflowX: 'auto' }}>
