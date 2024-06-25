@@ -79,6 +79,27 @@ const Report = () => {
     return `${month}/${day}/${year}`;
   };
 
+  const processDateColumns = (json, header) => {
+    dateColumns.forEach(dateColumn => {
+      const dateIndex = header.indexOf(dateColumn);
+      if (dateIndex !== -1) {
+        json.forEach(row => {
+          if (row[dateIndex] != null) {
+            if (typeof row[dateIndex] === 'number') {
+              row[dateIndex] = formatDate(excelDateToJSDate(row[dateIndex]));
+            } else if (typeof row[dateIndex] === 'string') {
+              // Ensure the date is in 00/00/00 format
+              const dateParts = row[dateIndex].split('/');
+              if (dateParts.length === 3 && dateParts[2].length === 4) {
+                row[dateIndex] = `${dateParts[0].padStart(2, '0')}/${dateParts[1].padStart(2, '0')}/${dateParts[2].substring(2)}`;
+              }
+            }
+          }
+        });
+      }
+    });
+  };
+
   const onDrop = useCallback((acceptedFiles) => {
     const file = acceptedFiles[0];
     const reader = new FileReader();
@@ -89,26 +110,8 @@ const Report = () => {
       const worksheet = workbook.Sheets[sheetName];
       const json = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
 
-      // Convert date columns to string format if they are serial numbers
       const header = json[0];
-      dateColumns.forEach(dateColumn => {
-        const dateIndex = header.indexOf(dateColumn);
-        if (dateIndex !== -1) {
-          json.forEach(row => {
-            if (row[dateIndex] != null) {
-              if (typeof row[dateIndex] === 'number') {
-                row[dateIndex] = formatDate(excelDateToJSDate(row[dateIndex]));
-              } else if (typeof row[dateIndex] === 'string') {
-                // Ensure the date is in 00/00/00 format
-                const dateParts = row[dateIndex].split('/');
-                if (dateParts.length === 3 && dateParts[2].length === 4) {
-                  row[dateIndex] = `${dateParts[0].padStart(2, '0')}/${dateParts[1].padStart(2, '0')}/${dateParts[2].substring(2)}`;
-                }
-              }
-            }
-          });
-        }
-      });
+      processDateColumns(json, header);
 
       console.log('New file data:', json); // Debugging step
       setData(json);
